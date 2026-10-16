@@ -1,4 +1,4 @@
-"""የጥናት አጋር — Study Assistant backend with Groq API (Complete & Fixed)."""
+"""የጥናት አጋር — Study Assistant backend with Groq API (Fixed Model)."""
 import io
 import json
 import os
@@ -14,8 +14,8 @@ from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from pypdf import PdfReader
 
-# Groq Active Model Configuration
-MODEL = "llama-3.1-8b-instant"
+# Groq Active Model Configuration (Stable & Supported)
+MODEL = "llama3-8b-8192"
 MAX_CHARS = 25_000
 MAX_UPLOAD_BYTES = 15 * 1024 * 1024
 
