@@ -1,4 +1,4 @@
-"""የጥናት አጋር — Study Assistant backend with Groq API (Instant Model)."""
+"""የጥናት አጋር — Study Assistant backend with Groq API (Complete & Fixed)."""
 import io
 import json
 import os
@@ -15,7 +15,7 @@ from pydantic import BaseModel
 from pypdf import PdfReader
 
 # Groq Active Model Configuration
-MODEL = os.getenv("MODEL", "llama-3.1-8b-instant")
+MODEL = "llama-3.1-8b-instant"
 MAX_CHARS = 25_000
 MAX_UPLOAD_BYTES = 15 * 1024 * 1024
 
@@ -128,8 +128,11 @@ def parse_json(raw: str):
 def extract_text(name: str, data: bytes) -> str:
     ext = Path(name).suffix.lower()
     if ext == ".pdf":
-        reader = PdfReader(io.BytesIO(data))
-        return "\n".join((p.extract_text() or "") for p in reader.pages)
+        try:
+            reader = PdfReader(io.BytesIO(data))
+            return "\n".join((p.extract_text() or "") for p in reader.pages)
+        except Exception as e:
+            raise HTTPException(400, f"ይህ የ PDF ፋይል ተጎድቷል ወይም ሊነበብ አልቻለም: {e}")
     if ext == ".docx":
         from docx import Document
 
