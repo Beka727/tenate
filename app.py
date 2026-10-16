@@ -17,7 +17,7 @@ from pydantic import BaseModel
 from pypdf import PdfReader
 
 # Model configuration
-MODEL = os.getenv("MODEL", "gemini-3.8-flash")
+MODEL = os.getenv("MODEL", "gemini-3.6-flash")
 MAX_CHARS = 100_000
 MAX_UPLOAD_BYTES = 15 * 1024 * 1024
 
