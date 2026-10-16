@@ -1,328 +1,309 @@
 <!DOCTYPE html>
-<html lang="am">
+<html lang="am" dir="ltr" class="h-full">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>የጥናት አጋር</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@400;600;700&family=Noto+Serif+Ethiopic:wght@400;600&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --paper: #EEF2F0;
-    --card: #FFFFFF;
-    --ink: #16212C;
-    --muted: #566672;
-    --line: #D3DCE2;
-    --accent: #1B6B93;
-    --accent-ink: #FFFFFF;
-    --mark: #FFE27A;
-    --ok: #2A7448;
-    --bad: #B3261E;
-    --part: #8A5A00;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --paper: #11181E;
-      --card: #1A242C;
-      --ink: #E7EEF2;
-      --muted: #9BADB8;
-      --line: #2B3944;
-      --accent: #5BB4DC;
-      --accent-ink: #0B1217;
-      --mark: #6B5A12;
-      --ok: #6CCB93;
-      --bad: #FF8A80;
-      --part: #E8B04A;
-    }
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0; background: var(--paper); color: var(--ink);
-    font: 16px/1.7 "Noto Sans Ethiopic", system-ui, sans-serif;
-  }
-  .wrap { max-width: 760px; margin: 0 auto; padding: 20px 16px 64px; }
-  header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
-  h1 { font-size: 1.35rem; margin: 0; }
-  button, .btn {
-    font: inherit; cursor: pointer; border: 1px solid var(--accent); background: var(--accent);
-    color: var(--accent-ink); padding: 9px 18px; border-radius: 6px; font-weight: 600;
-  }
-  button.ghost { background: transparent; color: var(--accent); }
-  button:disabled { opacity: .55; cursor: wait; }
-  :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
-  .hidden { display: none !important; }
-
-  /* upload */
-  .drop {
-    display: block; background: var(--card); border: 2px dashed var(--line); border-radius: 10px;
-    padding: 44px 20px; text-align: center; cursor: pointer;
-  }
-  .drop:hover, .drop.over { border-color: var(--accent); }
-  .drop strong { display: block; font-size: 1.15rem; margin-bottom: 4px; }
-  .drop span { color: var(--muted); font-size: .92rem; }
-  #fileName { margin: 14px 0 0; color: var(--muted); }
-  #uploadBtn { margin-top: 12px; }
-
-  /* tabs */
-  nav { display: flex; gap: 22px; border-bottom: 1px solid var(--line); margin-bottom: 20px; }
-  nav button {
-    background: none; border: 0; border-bottom: 3px solid transparent; border-radius: 0;
-    color: var(--muted); padding: 8px 2px; font-weight: 600;
-  }
-  nav button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
-
-  /* notes sheet */
-  .sheet {
-    background: var(--card); border: 1px solid var(--line); border-radius: 8px;
-    padding: 24px 22px; font-family: "Noto Serif Ethiopic", serif; line-height: 1.85;
-  }
-  .sheet h3 { font-family: "Noto Sans Ethiopic", sans-serif; font-size: 1.1rem; margin: 1.4em 0 .4em; color: var(--accent); }
-  .sheet h3:first-child { margin-top: 0; }
-  .sheet p { margin: .5em 0; }
-  .sheet ul { margin: .3em 0 .6em; padding-left: 1.2em; }
-  .sheet li { margin: .25em 0; }
-  mark { background: var(--mark); color: inherit; padding: 0 3px; border-radius: 2px; }
-  code { background: var(--paper); padding: 1px 5px; border-radius: 3px; }
-
-  /* chat */
-  .log { display: flex; flex-direction: column; gap: 12px; margin-bottom: 14px; }
-  .msg { padding: 12px 16px; border-radius: 8px; max-width: 92%; }
-  .msg.me { align-self: flex-end; background: var(--accent); color: var(--accent-ink); white-space: pre-wrap; }
-  .msg.ai { align-self: flex-start; background: var(--card); border: 1px solid var(--line); }
-  .msg.ai p { margin: .3em 0; }
-  .msg.ai ul { margin: .3em 0; padding-left: 1.2em; }
-  .empty { color: var(--muted); }
-  .composer { display: flex; gap: 8px; align-items: flex-end; }
-  textarea, input[type=text] {
-    font: inherit; width: 100%; padding: 10px 12px; border: 1px solid var(--line);
-    border-radius: 6px; background: var(--card); color: var(--ink);
-  }
-  textarea { resize: vertical; min-height: 46px; }
-
-  /* quiz */
-  .q { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 16px 18px; margin-bottom: 14px; }
-  .q-title { font-weight: 600; margin: 0 0 10px; }
-  .opt { display: flex; gap: 10px; align-items: flex-start; padding: 6px 0; cursor: pointer; }
-  .opt input { margin-top: 8px; }
-  .verdict { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
-  .verdict b.ok { color: var(--ok); } .verdict b.bad { color: var(--bad); } .verdict b.part { color: var(--part); }
-  .verdict p { margin: .4em 0; }
-  .score { font-size: 1.25rem; font-weight: 700; margin: 0 0 16px; }
-  .row { display: flex; gap: 10px; flex-wrap: wrap; }
-  .error { color: var(--bad); margin: 12px 0; }
-  .status { color: var(--muted); }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>የጥናት አጋር — Advanced Study Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        /* Custom scrollbar for sleek look */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
 </head>
-<body>
-<div class="wrap">
-  <header>
-    <h1>የጥናት አጋር</h1>
-    <button id="resetBtn" class="ghost hidden">ሌላ ሞጁል</button>
-  </header>
+<body class="bg-slate-900 text-slate-100 h-full flex flex-col selection:bg-indigo-500 selection:text-white">
 
-  <!-- upload -->
-  <section id="uploadView">
-    <label class="drop" id="drop" for="file">
-      <strong>ሞጁልህን እዚህ ጫን</strong>
-      <span>PDF፣ DOCX ወይም TXT</span>
-    </label>
-    <input id="file" type="file" accept=".pdf,.docx,.txt,.md" class="hidden">
-    <p id="fileName" class="hidden"></p>
-    <button id="uploadBtn" class="hidden">ኖት አዘጋጅ</button>
-    <p id="uploadStatus" class="status hidden"></p>
-    <p id="uploadError" class="error hidden"></p>
-  </section>
+    <!-- Top Navigation Header -->
+    <header class="bg-slate-800/80 backdrop-blur-md border-b border-slate-700/60 sticky top-0 z-50 px-6 py-3.5 flex justify-between items-center shadow-sm">
+        <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+            </div>
+            <div>
+                <h1 class="text-base font-bold tracking-tight text-white">የጥናት አጋር</h1>
+                <p class="text-xs text-slate-400">AI-Powered Academic Intelligence</p>
+            </div>
+        </div>
+        <div id="module-badge" class="hidden items-center gap-2 bg-indigo-500/10 border border-indigo-500/20 px-3.5 py-1.5 rounded-full text-xs font-medium text-indigo-300 max-w-xs truncate">
+            <span class="w-2 h-2 rounded-full bg-indigo-400 animate-pulse"></span>
+            <span id="module-title" class="truncate">ሞጁል ተጭኗል</span>
+        </div>
+    </header>
 
-  <!-- app -->
-  <section id="appView" class="hidden">
-    <nav role="tablist">
-      <button role="tab" aria-selected="true" data-tab="notes">ማስታወሻ</button>
-      <button role="tab" aria-selected="false" data-tab="ask">ጥያቄ ጠይቅ</button>
-      <button role="tab" aria-selected="false" data-tab="practice">ተለማመድ</button>
-    </nav>
+    <!-- Main Workspace Grid -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 overflow-hidden">
+        
+        <!-- Left Column: Upload & Structured Notes (7 Cols) -->
+        <section class="lg:col-span-7 flex flex-col gap-5 overflow-hidden">
+            <!-- Upload Box Card -->
+            <div id="upload-card" class="bg-slate-800/50 backdrop-blur border border-slate-700/60 p-5 rounded-2xl shadow-xl transition-all">
+                <h2 class="text-sm font-semibold mb-3 text-slate-200 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                    አዲስ የጥናት ሞጁል ጫን
+                </h2>
+                <div class="border-2 border-dashed border-slate-600/60 rounded-xl p-5 text-center hover:border-indigo-500 hover:bg-slate-800/40 transition group cursor-pointer relative" id="drop-zone">
+                    <input type="file" id="file-input" accept=".pdf,.docx,.txt,.md" class="absolute inset-0 opacity-0 cursor-pointer">
+                    <div class="flex flex-col items-center justify-center gap-1.5">
+                        <div class="w-10 h-10 rounded-full bg-indigo-500/10 text-indigo-400 flex items-center justify-center group-hover:scale-110 transition">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        </div>
+                        <p class="text-sm font-medium text-slate-200">PDF፣ DOCX ወይም TXT ፋይል እዚህ ጣል ወይም ምረጥ</p>
+                        <p class="text-xs text-slate-400">ከፍተኛው ገደብ: 15MB</p>
+                    </div>
+                </div>
+                <div id="loading" class="hidden mt-4 flex items-center justify-center gap-2 text-indigo-400 text-xs font-medium">
+                    <svg class="animate-spin h-4 w-4 text-indigo-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    ፋይሉ በጥልቀት እየተነበበ እና በምዕራፍ እየተዘጋጀ ነው፣ እባክዎ ይጠብቁ...
+                </div>
+            </div>
 
-    <div id="tab-notes" class="sheet"></div>
+            <!-- Notes Display Card -->
+            <div id="notes-card" class="bg-slate-800/50 backdrop-blur border border-slate-700/60 p-5 rounded-2xl shadow-xl hidden flex-1 flex flex-col overflow-hidden">
+                <div class="flex justify-between items-center mb-3 pb-3 border-b border-slate-700/60">
+                    <h2 class="text-sm font-semibold text-slate-200 flex items-center gap-2">
+                        <svg class="w-4 h-4 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                        ምዕራፍ-ተኮር የጥናት ማስታወሻዎች
+                    </h2>
+                    <button onclick="generateQuiz()" id="quiz-btn" class="bg-violet-600/80 hover:bg-violet-600 text-white px-3.5 py-1.5 rounded-xl text-xs font-medium transition shadow-md shadow-violet-500/20 flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                        ፈተና/ጥያቄ አዘጋጅ
+                    </button>
+                </div>
+                <div id="notes-content" class="prose prose-invert max-w-none text-slate-300 overflow-y-auto flex-1 text-xs md:text-sm leading-relaxed pr-2"></div>
+            </div>
+        </section>
 
-    <div id="tab-ask" class="hidden">
-      <div id="log" class="log"><p class="empty">ስለ ሞጁሉ ያልገባህን ማንኛውንም ነገር ጠይቅ።</p></div>
-      <div class="composer">
-        <textarea id="msg" rows="2" placeholder="ጥያቄህን ጻፍ…"></textarea>
-        <button id="sendBtn">ላክ</button>
-      </div>
+        <!-- Right Column: Interactive Chat & Quiz Interface (5 Cols) -->
+        <section class="lg:col-span-5 bg-slate-800/50 backdrop-blur border border-slate-700/60 p-5 rounded-2xl shadow-xl flex flex-col h-[calc(100vh-7rem)] lg:h-auto">
+            <h2 class="text-sm font-semibold mb-3 text-slate-200 pb-3 border-b border-slate-700/60 flex items-center gap-2">
+                <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+                አስተማሪ እና የውይይት ማዕከል
+            </h2>
+            
+            <!-- Chat Messages Container -->
+            <div id="chat-messages" class="flex-1 overflow-y-auto space-y-3.5 pr-2 mb-4 text-xs md:text-sm">
+                <div class="bg-indigo-950/60 border border-indigo-500/20 text-indigo-200 p-3.5 rounded-2xl shadow-sm">
+                    ሰላም! ሞጁሉን ከጫኑ በኋላ ስለ ትምህርቱ ግልጽ ያልሆነልዎትን ማንኛውንም ሀሳብ በአማርኛ ወይም በእንግሊዝኛ መጠየቅ ይችላሉ።
+                </div>
+            </div>
+
+            <!-- Chat Input Form -->
+            <form id="chat-form" class="flex gap-2 mt-auto pt-3 border-t border-slate-700/60">
+                <input type="text" id="chat-input" placeholder="ስለ ሞጁሉ ጥያቄ ይጠይቁ..." class="flex-1 bg-slate-900/80 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs md:text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition" disabled>
+                <button type="submit" id="chat-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2.5 rounded-xl text-xs font-semibold transition disabled:opacity-50 shadow-md shadow-indigo-600/30" disabled>ላክ</button>
+            </form>
+        </section>
+
+    </main>
+
+    <!-- Quiz Modal Container (Hidden by default) -->
+    <div id="quiz-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-800 border border-slate-700 w-full max-w-2xl rounded-2xl shadow-2xl p-6 max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-700">
+                <h3 class="text-base font-bold text-white">የсаルフ ፈተና (Practice Quiz)</h3>
+                <button onclick="closeQuiz()" class="text-slate-400 hover:text-white text-lg font-bold">&times;</button>
+            </div>
+            <div id="quiz-container" class="overflow-y-auto flex-1 space-y-4 pr-2 text-sm"></div>
+            <div class="mt-4 pt-3 border-t border-slate-700 flex justify-end">
+                <button onclick="submitQuiz()" id="submit-quiz-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2 rounded-xl text-xs font-semibold transition">መልስ አስረክብ</button>
+            </div>
+        </div>
     </div>
 
-    <div id="tab-practice" class="hidden">
-      <div id="quizStart">
-        <p>ከሞጁሉ ላይ የመለማመጃ ጥያቄዎችን አዘጋጅ። መልስህን ከላክህ በኋላ እርማት እና ተጨማሪ ማብራሪያ ታገኛለህ።</p>
-        <button id="quizBtn">ጥያቄዎችን አዘጋጅ</button>
-      </div>
-      <form id="quizForm" class="hidden"></form>
-      <div id="quizActions" class="row hidden">
-        <button id="gradeBtn" type="button">መልሶቼን አርም</button>
-      </div>
-      <div id="quizAgain" class="row hidden"><button id="againBtn" class="ghost">ሌሎች ጥያቄዎች</button></div>
-      <p id="quizError" class="error hidden"></p>
-    </div>
-  </section>
-</div>
+    <!-- JavaScript Client Logic -->
+    <script>
+        let currentModuleId = null;
+        let chatHistory = [];
+        let currentQuizData = [];
 
-<script>
-const $ = id => document.getElementById(id);
-const state = { id: null, history: [], quiz: null };
+        const fileInput = document.getElementById('file-input');
+        const loadingDiv = document.getElementById('loading');
+        const uploadCard = document.getElementById('upload-card');
+        const notesCard = document.getElementById('notes-card');
+        const notesContent = document.getElementById('notes-content');
+        const moduleBadge = document.getElementById('module-badge');
+        const moduleTitle = document.getElementById('module-title');
+        
+        const chatMessages = document.getElementById('chat-messages');
+        const chatForm = document.getElementById('chat-form');
+        const chatInput = document.getElementById('chat-input');
+        const chatBtn = document.getElementById('chat-btn');
 
-const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+        fileInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
 
-function md(src) {
-  const inline = t => t.replace(/\*\*(.+?)\*\*/g, '<mark>$1</mark>').replace(/`(.+?)`/g, '<code>$1</code>');
-  let out = '', list = false;
-  const close = () => { if (list) { out += '</ul>'; list = false; } };
-  for (const raw of esc(src).split('\n')) {
-    const l = raw.trimEnd(); let m;
-    if ((m = l.match(/^#{1,4}\s+(.*)/))) { close(); out += `<h3>${inline(m[1])}</h3>`; }
-    else if ((m = l.match(/^\s*(?:[-*•]|\d+[.)])\s+(.*)/))) { if (!list) { out += '<ul>'; list = true; } out += `<li>${inline(m[1])}</li>`; }
-    else if (l === '') close();
-    else { close(); out += `<p>${inline(l)}</p>`; }
-  }
-  close(); return out;
-}
+            const formData = new FormData();
+            formData.append('file', file);
 
-async function api(path, opts) {
-  const r = await fetch(path, opts);
-  let data = {};
-  try { data = await r.json(); } catch (_) {}
-  if (!r.ok) throw new Error(data.detail || 'ችግር ተፈጥሯል። እንደገና ሞክር።');
-  return data;
-}
-const post = (path, body) => api(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-const show = (el, on = true) => el.classList.toggle('hidden', !on);
+            loadingDiv.classList.remove('hidden');
+            uploadCard.style.opacity = '0.6';
 
-/* ---- upload ---- */
-let chosen = null;
-function pick(f) {
-  chosen = f; if (!f) return;
-  $('fileName').textContent = f.name; show($('fileName')); show($('uploadBtn')); show($('uploadError'), false);
-}
-$('file').onchange = e => pick(e.target.files[0]);
-['dragover', 'dragenter'].forEach(ev => $('drop').addEventListener(ev, e => { e.preventDefault(); $('drop').classList.add('over'); }));
-['dragleave', 'drop'].forEach(ev => $('drop').addEventListener(ev, e => { e.preventDefault(); $('drop').classList.remove('over'); }));
-$('drop').addEventListener('drop', e => pick(e.dataTransfer.files[0]));
+            try {
+                const res = await fetch('/api/upload', { method: 'POST', body: formData });
+                const data = await res.json();
+                
+                if (!res.ok) throw new Error(data.detail || 'ሰርቨሩ ላይ ስህተት ተፈጥሯል።');
 
-function openModule(d) {
-  state.id = d.id; state.history = []; state.quiz = null;
-  localStorage.setItem('moduleId', d.id);
-  $('tab-notes').innerHTML = md(d.notes);
-  show($('uploadView'), false); show($('appView')); show($('resetBtn'));
-  switchTab('notes');
-}
+                currentModuleId = data.id;
+                moduleTitle.textContent = data.name;
+                moduleBadge.classList.remove('hidden');
+                moduleBadge.classList.add('flex');
+                
+                notesContent.innerHTML = marked.parse(data.notes);
+                notesCard.classList.remove('hidden');
+                
+                chatInput.disabled = false;
+                chatBtn.disabled = false;
 
-$('uploadBtn').onclick = async () => {
-  if (!chosen) return;
-  const fd = new FormData(); fd.append('file', chosen);
-  $('uploadBtn').disabled = true; show($('uploadError'), false);
-  $('uploadStatus').textContent = 'ሞጁሉን እያነበብኩ ኖት አዘጋጃለሁ… (ትንሽ ጊዜ ይወስዳል)'; show($('uploadStatus'));
-  try {
-    const d = await api('/api/upload', { method: 'POST', body: fd });
-    openModule(d);
-  } catch (e) {
-    $('uploadError').textContent = e.message; show($('uploadError'));
-  } finally {
-    $('uploadBtn').disabled = false; show($('uploadStatus'), false);
-  }
-};
+                appendChatMessage('assistant', 'ሞጁሉ በተሳካ ሁኔታ ተጭኗል! ማስታወሻዎቹን በምዕራፍ ከፍሎ አዘጋጅቻለሁ። ከግራ በኩል ማንበብ እና ከዚህ በታች ጥያቄ መጠየቅ ይችላሉ።');
+            } catch (err) {
+                alert('ስህተት: ' + err.message);
+            } finally {
+                loadingDiv.classList.add('hidden');
+                uploadCard.style.opacity = '1';
+            }
+        });
 
-$('resetBtn').onclick = () => {
-  state.id = null; chosen = null; $('file').value = ''; localStorage.removeItem('moduleId');
-  $('log').innerHTML = '<p class="empty">ስለ ሞጁሉ ያልገባህን ማንኛውንም ነገር ጠይቅ።</p>';
-  show($('quizForm'), false); show($('quizActions'), false); show($('quizAgain'), false); show($('quizStart'));
-  show($('appView'), false); show($('resetBtn'), false); show($('fileName'), false); show($('uploadBtn'), false);
-  show($('uploadView'));
-};
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const msg = chatInput.value.trim();
+            if (!msg || !currentModuleId) return;
 
-/* ---- tabs ---- */
-function switchTab(name) {
-  document.querySelectorAll('nav button').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === name));
-  show($('tab-notes'), name === 'notes'); show($('tab-ask'), name === 'ask'); show($('tab-practice'), name === 'practice');
-}
-document.querySelectorAll('nav button').forEach(b => b.onclick = () => switchTab(b.dataset.tab));
+            chatInput.value = '';
+            appendChatMessage('user', msg);
+            chatHistory.push({ role: 'user', content: msg });
 
-/* ---- chat ---- */
-function addMsg(role, html) {
-  const log = $('log'); log.querySelector('.empty')?.remove();
-  const d = document.createElement('div'); d.className = 'msg ' + role; d.innerHTML = html; log.appendChild(d);
-  d.scrollIntoView({ block: 'nearest' }); return d;
-}
-async function send() {
-  const text = $('msg').value.trim(); if (!text) return;
-  $('msg').value = ''; $('sendBtn').disabled = true;
-  addMsg('me', esc(text));
-  const wait = addMsg('ai', '<span class="status">እያሰብኩ ነው…</span>');
-  try {
-    const d = await post('/api/chat', { id: state.id, message: text, history: state.history });
-    state.history.push({ role: 'user', content: text }, { role: 'assistant', content: d.reply });
-    wait.innerHTML = md(d.reply);
-  } catch (e) { wait.innerHTML = `<span class="error">${esc(e.message)}</span>`; }
-  $('sendBtn').disabled = false; $('msg').focus();
-}
-$('sendBtn').onclick = send;
-$('msg').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } });
+            chatInput.disabled = true;
+            chatBtn.disabled = true;
 
-/* ---- practice ---- */
-async function makeQuiz() {
-  show($('quizError'), false); $('quizBtn').disabled = true; $('againBtn').disabled = true;
-  $('quizBtn').textContent = 'ጥያቄዎችን እያዘጋጀሁ ነው…';
-  try {
-    const d = await post('/api/quiz', { id: state.id, count: 5 });
-    state.quiz = d.questions; renderQuiz();
-  } catch (e) { $('quizError').textContent = e.message; show($('quizError')); }
-  $('quizBtn').disabled = false; $('againBtn').disabled = false; $('quizBtn').textContent = 'ጥያቄዎችን አዘጋጅ';
-}
-function renderQuiz() {
-  $('quizForm').innerHTML = state.quiz.map((q, i) => `
-    <fieldset class="q" id="q${i}" style="border:1px solid var(--line)">
-      <legend class="q-title">${i + 1}. ${esc(q.question)}</legend>
-      ${q.type === 'mcq'
-        ? q.options.map((o, j) => `<label class="opt"><input type="radio" name="q${i}" value="${j}"><span>${esc(o)}</span></label>`).join('')
-        : `<textarea name="q${i}" rows="3" placeholder="መልስህን ጻፍ…"></textarea>`}
-      <div class="verdict hidden"></div>
-    </fieldset>`).join('');
-  show($('quizStart'), false); show($('quizForm')); show($('quizActions')); show($('quizAgain'), false);
-  $('gradeBtn').disabled = false;
-}
-$('quizBtn').onclick = makeQuiz;
-$('againBtn').onclick = () => { show($('quizAgain'), false); makeQuiz(); };
+            try {
+                const res = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: currentModuleId, message: msg, history: chatHistory })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || 'መልስ ማግኘት አልተቻለም።');
 
-$('gradeBtn').onclick = async () => {
-  const answers = state.quiz.map((q, i) => {
-    if (q.type === 'mcq') return document.querySelector(`input[name=q${i}]:checked`)?.value ?? '';
-    return document.querySelector(`textarea[name=q${i}]`).value;
-  });
-  $('gradeBtn').disabled = true; $('gradeBtn').textContent = 'እያረምኩ ነው…'; show($('quizError'), false);
-  try {
-    const d = await post('/api/grade', { id: state.id, answers });
-    d.results.forEach((r, i) => {
-      const box = document.querySelector(`#q${i} .verdict`);
-      const [cls, label] = r.score >= 1 ? ['ok', 'ትክክል'] : r.score > 0 ? ['part', 'ከፊል ትክክል'] : ['bad', 'ስህተት'];
-      box.innerHTML = `<b class="${cls}">${label}</b>` +
-        (r.score < 1 ? `<p><b>ትክክለኛ መልስ:</b> ${esc(r.correct_answer)}</p>` : '') +
-        `<p>${esc(r.feedback)}</p>`;
-      show(box);
-    });
-    const s = document.createElement('p'); s.className = 'score';
-    s.textContent = `ውጤት: ${d.total} ከ ${d.count}`;
-    $('quizForm').prepend(s); s.scrollIntoView({ block: 'start' });
-    show($('quizActions'), false); show($('quizAgain'));
-  } catch (e) { $('quizError').textContent = e.message; show($('quizError')); $('gradeBtn').disabled = false; }
-  $('gradeBtn').textContent = 'መልሶቼን አርም';
-};
+                appendChatMessage('assistant', data.reply);
+                chatHistory.push({ role: 'assistant', content: data.reply });
+            } catch (err) {
+                appendChatMessage('assistant', 'ይቅርታ፣ ስህተት አጋጥሟል: ' + err.message);
+            } finally {
+                chatInput.disabled = false;
+                chatBtn.disabled = false;
+                chatInput.focus();
+            }
+        });
 
-/* ---- reopen the last module after a refresh ---- */
-(async () => {
-  const id = localStorage.getItem('moduleId');
-  if (!id) return;
-  try { openModule(await api('/api/module/' + encodeURIComponent(id))); }
-  catch (_) { localStorage.removeItem('moduleId'); }
-})();
-</script>
+        function appendChatMessage(role, text) {
+            const div = document.createElement('div');
+            if (role === 'user') {
+                div.className = 'bg-indigo-600/30 border border-indigo-500/30 text-slate-100 p-3.5 rounded-2xl ml-8 text-xs md:text-sm';
+                div.textContent = text;
+            } else {
+                div.className = 'bg-slate-800/80 border border-slate-700 text-slate-200 p-3.5 rounded-2xl mr-8 text-xs md:text-sm prose prose-invert max-w-none';
+                div.innerHTML = marked.parse(text);
+            }
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        async function generateQuiz() {
+            if (!currentModuleId) return;
+            const quizContainer = document.getElementById('quiz-container');
+            quizContainer.innerHTML = '<p class="text-center text-slate-400 py-6">ጥያቄዎች እየተዘጋጁ ነው...</p>';
+            document.getElementById('quiz-modal').classList.remove('hidden');
+
+            try {
+                const res = await fetch('/api/quiz', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: currentModuleId, count: 5 })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || 'ፈተና ማዘጋጀት አልተቻለም።');
+
+                currentQuizData = data.questions;
+                renderQuiz(currentQuizData);
+            } catch (err) {
+                quizContainer.innerHTML = `<p class="text-red-400 text-center py-4">ስህተት: ${err.message}</p>`;
+            }
+        }
+
+        function renderQuiz(questions) {
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = '';
+            questions.forEach((q, idx) => {
+                const qDiv = document.createElement('div');
+                qDiv.className = 'bg-slate-900/60 border border-slate-700/60 p-4 rounded-xl';
+                let html = `<p class="font-medium text-slate-200 mb-2">${idx + 1}. ${q.question}</p>`;
+                if (q.type === 'mcq' && q.options) {
+                    html += `<div class="space-y-1.5 pl-2">`;
+                    q.options.forEach((opt, oIdx) => {
+                        html += `<label class="flex items-center gap-2 text-xs md:text-sm text-slate-300 cursor-pointer hover:text-white">
+                            <input type="radio" name="q_${idx}" value="${oIdx}" class="text-indigo-600 focus:ring-indigo-500">
+                            ${opt}
+                        </label>`;
+                    });
+                    html += `</div>`;
+                } else {
+                    html += `<input type="text" name="q_${idx}" placeholder="መልስዎን እዚህ ይጻፉ..." class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-100 mt-2">`;
+                }
+                qDiv.innerHTML = html;
+                container.appendChild(qDiv);
+            });
+        }
+
+        async function submitQuiz() {
+            const answers = [];
+            currentQuizData.forEach((q, idx) => {
+                if (q.type === 'mcq') {
+                    const selected = document.querySelector(`input[name="q_${idx}"]:checked`);
+                    answers.push(selected ? selected.value : "");
+                } else {
+                    const input = document.querySelector(`input[name="q_${idx}"]`);
+                    answers.push(input ? input.value : "");
+                }
+            });
+
+            try {
+                const res = await fetch('/api/grade', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: currentModuleId, answers })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || 'ማረም አልተቻለም።');
+
+                let html = `<div class="bg-indigo-950/60 border border-indigo-500/30 p-4 rounded-xl mb-4 text-center">
+                    <h4 class="text-base font-bold text-white">ውጤትዎ: ${data.total} / ${data.count}</h4>
+                </div>`;
+                
+                data.results.forEach((r, idx) => {
+                    html += `<div class="bg-slate-900/60 border border-slate-700/60 p-3.5 rounded-xl mb-2 text-xs">
+                        <p class="font-medium text-slate-200">ጥያቄ ${idx + 1} (ውጤት: ${r.score})</p>
+                        <p class="text-slate-400 mt-1">ትክክለኛ መልስ: <span class="text-indigo-300">${r.correct_answer}</span></p>
+                        <p class="text-slate-300 mt-1 bg-slate-800/80 p-2 rounded">${r.feedback}</p>
+                    </div>`;
+                });
+                document.getElementById('quiz-container').innerHTML = html;
+                document.getElementById('submit-quiz-btn').style.display = 'none';
+            } catch (err) {
+                alert('ስህተት: ' + err.message);
+            }
+        }
+
+        function closeQuiz() {
+            document.getElementById('quiz-modal').classList.add('hidden');
+            document.getElementById('submit-quiz-btn').style.display = 'block';
+        }
+    </script>
 </body>
 </html>
