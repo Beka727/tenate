@@ -1,4 +1,4 @@
-"""የጥናት አጋር — Study Assistant backend with Gemini API (Full Complete Version)."""
+"""የጥናት አጋር — Study Assistant backend (Fast & Optimized Version)."""
 import io
 import json
 import os
@@ -16,9 +16,9 @@ from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from pypdf import PdfReader
 
-# Model configuration
-MODEL = os.getenv("MODEL", "gemini-3.6-flash")
-MAX_CHARS = 100_000
+# Fast model and optimized token limit to eliminate latency
+MODEL = os.getenv("MODEL", "gemini-2.0-flash")
+MAX_CHARS = 15_000
 MAX_UPLOAD_BYTES = 15 * 1024 * 1024
 
 # Initialize Gemini Client
@@ -85,7 +85,7 @@ briefly, then help with general knowledge while making clear it is outside the m
 Be accurate; never invent facts the module does not support."""
 
 
-# ---------- helpers with Auto-Retry for 503 errors ----------
+# ---------- Fast Auto-Retry Helper ----------
 def ask(system: str, prompt: str, history: list[dict] = None) -> str:
     full_prompt = f"{prompt}"
     if history:
@@ -96,7 +96,7 @@ def ask(system: str, prompt: str, history: list[dict] = None) -> str:
         full_prompt = f"Previous conversation:\n{formatted_hist}\nStudent: {prompt}"
 
     max_retries = 3
-    backoff_delay = 2
+    backoff_delay = 1.5  # Reduced delay for minimal waiting time
 
     for attempt in range(max_retries):
         try:
