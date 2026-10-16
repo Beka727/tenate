@@ -15,7 +15,7 @@ from pydantic import BaseModel
 from pypdf import PdfReader
 
 # Groq Active Model Configuration (Stable & Supported)
-MODEL = "llama3-8b-8192"
+MODEL = "llama-3.3-70b-versatile"
 MAX_CHARS = 25_000
 MAX_UPLOAD_BYTES = 15 * 1024 * 1024
 
