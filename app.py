@@ -15,8 +15,8 @@ from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from pypdf import PdfReader
 
-# Default model: gemini-2.5-flash or gemini-1.5-flash
-MODEL = os.getenv("MODEL", "gemini-2.5-flash")
+# Updated model to gemini-3.8-flash
+MODEL = os.getenv("MODEL", "gemini-3.8-flash")
 MAX_CHARS = 120_000
 MAX_UPLOAD_BYTES = 15 * 1024 * 1024
 
@@ -87,7 +87,6 @@ Be accurate; never invent facts the module does not support."""
 # ---------- helpers ----------
 def ask(system: str, prompt: str, history: list[dict] = None) -> str:
     try:
-        # Prepare content hierarchy or prompt
         full_prompt = f"{prompt}"
         if history:
             formatted_hist = ""
