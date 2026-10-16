@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="am">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>የጥናት አጋር</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@400;600;700&family=Noto+Serif+Ethiopic:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #EEF2F0;
+    --card: #FFFFFF;
+    --ink: #16212C;
+    --muted: #566672;
+    --line: #D3DCE2;
+    --accent: #1B6B93;
+    --accent-ink: #FFFFFF;
+    --mark: #FFE27A;
+    --ok: #2A7448;
+    --bad: #B3261E;
+    --part: #8A5A00;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #11181E;
+      --card: #1A242C;
+      --ink: #E7EEF2;
+      --muted: #9BADB8;
+      --line: #2B3944;
+      --accent: #5BB4DC;
+      --accent-ink: #0B1217;
+      --mark: #6B5A12;
+      --ok: #6CCB93;
+      --bad: #FF8A80;
+      --part: #E8B04A;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font: 16px/1.7 "Noto Sans Ethiopic", system-ui, sans-serif;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 20px 16px 64px; }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
+  h1 { font-size: 1.35rem; margin: 0; }
+  button, .btn {
+    font: inherit; cursor: pointer; border: 1px solid var(--accent); background: var(--accent);
+    color: var(--accent-ink); padding: 9px 18px; border-radius: 6px; font-weight: 600;
+  }
+  button.ghost { background: transparent; color: var(--accent); }
+  button:disabled { opacity: .55; cursor: wait; }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .hidden { display: none !important; }
+
+  /* upload */
+  .drop {
+    display: block; background: var(--card); border: 2px dashed var(--line); border-radius: 10px;
+    padding: 44px 20px; text-align: center; cursor: pointer;
+  }
+  .drop:hover, .drop.over { border-color: var(--accent); }
+  .drop strong { display: block; font-size: 1.15rem; margin-bottom: 4px; }
+  .drop span { color: var(--muted); font-size: .92rem; }
+  #fileName { margin: 14px 0 0; color: var(--muted); }
+  #uploadBtn { margin-top: 12px; }
+
+  /* tabs */
+  nav { display: flex; gap: 22px; border-bottom: 1px solid var(--line); margin-bottom: 20px; }
+  nav button {
+    background: none; border: 0; border-bottom: 3px solid transparent; border-radius: 0;
+    color: var(--muted); padding: 8px 2px; font-weight: 600;
+  }
+  nav button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+
+  /* notes sheet */
+  .sheet {
+    background: var(--card); border: 1px solid var(--line); border-radius: 8px;
+    padding: 24px 22px; font-family: "Noto Serif Ethiopic", serif; line-height: 1.85;
+  }
+  .sheet h3 { font-family: "Noto Sans Ethiopic", sans-serif; font-size: 1.1rem; margin: 1.4em 0 .4em; color: var(--accent); }
+  .sheet h3:first-child { margin-top: 0; }
+  .sheet p { margin: .5em 0; }
+  .sheet ul { margin: .3em 0 .6em; padding-left: 1.2em; }
+  .sheet li { margin: .25em 0; }
+  mark { background: var(--mark); color: inherit; padding: 0 3px; border-radius: 2px; }
+  code { background: var(--paper); padding: 1px 5px; border-radius: 3px; }
+
+  /* chat */
+  .log { display: flex; flex-direction: column; gap: 12px; margin-bottom: 14px; }
+  .msg { padding: 12px 16px; border-radius: 8px; max-width: 92%; }
+  .msg.me { align-self: flex-end; background: var(--accent); color: var(--accent-ink); white-space: pre-wrap; }
+  .msg.ai { align-self: flex-start; background: var(--card); border: 1px solid var(--line); }
+  .msg.ai p { margin: .3em 0; }
+  .msg.ai ul { margin: .3em 0; padding-left: 1.2em; }
+  .empty { color: var(--muted); }
+  .composer { display: flex; gap: 8px; align-items: flex-end; }
+  textarea, input[type=text] {
+    font: inherit; width: 100%; padding: 10px 12px; border: 1px solid var(--line);
+    border-radius: 6px; background: var(--card); color: var(--ink);
+  }
+  textarea { resize: vertical; min-height: 46px; }
+
+  /* quiz */
+  .q { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 16px 18px; margin-bottom: 14px; }
+  .q-title { font-weight: 600; margin: 0 0 10px; }
+  .opt { display: flex; gap: 10px; align-items: flex-start; padding: 6px 0; cursor: pointer; }
+  .opt input { margin-top: 8px; }
+  .verdict { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
+  .verdict b.ok { color: var(--ok); } .verdict b.bad { color: var(--bad); } .verdict b.part { color: var(--part); }
+  .verdict p { margin: .4em 0; }
+  .score { font-size: 1.25rem; font-weight: 700; margin: 0 0 16px; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .error { color: var(--bad); margin: 12px 0; }
+  .status { color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>የጥናት አጋር</h1>
+    <button id="resetBtn" class="ghost hidden">ሌላ ሞጁል</button>
+  </header>
+
+  <!-- upload -->
+  <section id="uploadView">
+    <label class="drop" id="drop" for="file">
+      <strong>ሞጁልህን እዚህ ጫን</strong>
+      <span>PDF፣ DOCX ወይም TXT</span>
+    </label>
+    <input id="file" type="file" accept=".pdf,.docx,.txt,.md" class="hidden">
+    <p id="fileName" class="hidden"></p>
+    <button id="uploadBtn" class="hidden">ኖት አዘጋጅ</button>
+    <p id="uploadStatus" class="status hidden"></p>
+    <p id="uploadError" class="error hidden"></p>
+  </section>
+
+  <!-- app -->
+  <section id="appView" class="hidden">
+    <nav role="tablist">
+      <button role="tab" aria-selected="true" data-tab="notes">ማስታወሻ</button>
+      <button role="tab" aria-selected="false" data-tab="ask">ጥያቄ ጠይቅ</button>
+      <button role="tab" aria-selected="false" data-tab="practice">ተለማመድ</button>
+    </nav>
+
+    <div id="tab-notes" class="sheet"></div>
+
+    <div id="tab-ask" class="hidden">
+      <div id="log" class="log"><p class="empty">ስለ ሞጁሉ ያልገባህን ማንኛውንም ነገር ጠይቅ።</p></div>
+      <div class="composer">
+        <textarea id="msg" rows="2" placeholder="ጥያቄህን ጻፍ…"></textarea>
+        <button id="sendBtn">ላክ</button>
+      </div>
+    </div>
+
+    <div id="tab-practice" class="hidden">
+      <div id="quizStart">
+        <p>ከሞጁሉ ላይ የመለማመጃ ጥያቄዎችን አዘጋጅ። መልስህን ከላክህ በኋላ እርማት እና ተጨማሪ ማብራሪያ ታገኛለህ።</p>
+        <button id="quizBtn">ጥያቄዎችን አዘጋጅ</button>
+      </div>
+      <form id="quizForm" class="hidden"></form>
+      <div id="quizActions" class="row hidden">
+        <button id="gradeBtn" type="button">መልሶቼን አርም</button>
+      </div>
+      <div id="quizAgain" class="row hidden"><button id="againBtn" class="ghost">ሌሎች ጥያቄዎች</button></div>
+      <p id="quizError" class="error hidden"></p>
+    </div>
+  </section>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const state = { id: null, history: [], quiz: null };
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function md(src) {
+  const inline = t => t.replace(/\*\*(.+?)\*\*/g, '<mark>$1</mark>').replace(/`(.+?)`/g, '<code>$1</code>');
+  let out = '', list = false;
+  const close = () => { if (list) { out += '</ul>'; list = false; } };
+  for (const raw of esc(src).split('\n')) {
+    const l = raw.trimEnd(); let m;
+    if ((m = l.match(/^#{1,4}\s+(.*)/))) { close(); out += `<h3>${inline(m[1])}</h3>`; }
+    else if ((m = l.match(/^\s*(?:[-*•]|\d+[.)])\s+(.*)/))) { if (!list) { out += '<ul>'; list = true; } out += `<li>${inline(m[1])}</li>`; }
+    else if (l === '') close();
+    else { close(); out += `<p>${inline(l)}</p>`; }
+  }
+  close(); return out;
+}
+
+async function api(path, opts) {
+  const r = await fetch(path, opts);
+  let data = {};
+  try { data = await r.json(); } catch (_) {}
+  if (!r.ok) throw new Error(data.detail || 'ችግር ተፈጥሯል። እንደገና ሞክር።');
+  return data;
+}
+const post = (path, body) => api(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+const show = (el, on = true) => el.classList.toggle('hidden', !on);
+
+/* ---- upload ---- */
+let chosen = null;
+function pick(f) {
+  chosen = f; if (!f) return;
+  $('fileName').textContent = f.name; show($('fileName')); show($('uploadBtn')); show($('uploadError'), false);
+}
+$('file').onchange = e => pick(e.target.files[0]);
+['dragover', 'dragenter'].forEach(ev => $('drop').addEventListener(ev, e => { e.preventDefault(); $('drop').classList.add('over'); }));
+['dragleave', 'drop'].forEach(ev => $('drop').addEventListener(ev, e => { e.preventDefault(); $('drop').classList.remove('over'); }));
+$('drop').addEventListener('drop', e => pick(e.dataTransfer.files[0]));
+
+function openModule(d) {
+  state.id = d.id; state.history = []; state.quiz = null;
+  localStorage.setItem('moduleId', d.id);
+  $('tab-notes').innerHTML = md(d.notes);
+  show($('uploadView'), false); show($('appView')); show($('resetBtn'));
+  switchTab('notes');
+}
+
+$('uploadBtn').onclick = async () => {
+  if (!chosen) return;
+  const fd = new FormData(); fd.append('file', chosen);
+  $('uploadBtn').disabled = true; show($('uploadError'), false);
+  $('uploadStatus').textContent = 'ሞጁሉን እያነበብኩ ኖት አዘጋጃለሁ… (ትንሽ ጊዜ ይወስዳል)'; show($('uploadStatus'));
+  try {
+    const d = await api('/api/upload', { method: 'POST', body: fd });
+    openModule(d);
+  } catch (e) {
+    $('uploadError').textContent = e.message; show($('uploadError'));
+  } finally {
+    $('uploadBtn').disabled = false; show($('uploadStatus'), false);
+  }
+};
+
+$('resetBtn').onclick = () => {
+  state.id = null; chosen = null; $('file').value = ''; localStorage.removeItem('moduleId');
+  $('log').innerHTML = '<p class="empty">ስለ ሞጁሉ ያልገባህን ማንኛውንም ነገር ጠይቅ።</p>';
+  show($('quizForm'), false); show($('quizActions'), false); show($('quizAgain'), false); show($('quizStart'));
+  show($('appView'), false); show($('resetBtn'), false); show($('fileName'), false); show($('uploadBtn'), false);
+  show($('uploadView'));
+};
+
+/* ---- tabs ---- */
+function switchTab(name) {
+  document.querySelectorAll('nav button').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === name));
+  show($('tab-notes'), name === 'notes'); show($('tab-ask'), name === 'ask'); show($('tab-practice'), name === 'practice');
+}
+document.querySelectorAll('nav button').forEach(b => b.onclick = () => switchTab(b.dataset.tab));
+
+/* ---- chat ---- */
+function addMsg(role, html) {
+  const log = $('log'); log.querySelector('.empty')?.remove();
+  const d = document.createElement('div'); d.className = 'msg ' + role; d.innerHTML = html; log.appendChild(d);
+  d.scrollIntoView({ block: 'nearest' }); return d;
+}
+async function send() {
+  const text = $('msg').value.trim(); if (!text) return;
+  $('msg').value = ''; $('sendBtn').disabled = true;
+  addMsg('me', esc(text));
+  const wait = addMsg('ai', '<span class="status">እያሰብኩ ነው…</span>');
+  try {
+    const d = await post('/api/chat', { id: state.id, message: text, history: state.history });
+    state.history.push({ role: 'user', content: text }, { role: 'assistant', content: d.reply });
+    wait.innerHTML = md(d.reply);
+  } catch (e) { wait.innerHTML = `<span class="error">${esc(e.message)}</span>`; }
+  $('sendBtn').disabled = false; $('msg').focus();
+}
+$('sendBtn').onclick = send;
+$('msg').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } });
+
+/* ---- practice ---- */
+async function makeQuiz() {
+  show($('quizError'), false); $('quizBtn').disabled = true; $('againBtn').disabled = true;
+  $('quizBtn').textContent = 'ጥያቄዎችን እያዘጋጀሁ ነው…';
+  try {
+    const d = await post('/api/quiz', { id: state.id, count: 5 });
+    state.quiz = d.questions; renderQuiz();
+  } catch (e) { $('quizError').textContent = e.message; show($('quizError')); }
+  $('quizBtn').disabled = false; $('againBtn').disabled = false; $('quizBtn').textContent = 'ጥያቄዎችን አዘጋጅ';
+}
+function renderQuiz() {
+  $('quizForm').innerHTML = state.quiz.map((q, i) => `
+    <fieldset class="q" id="q${i}" style="border:1px solid var(--line)">
+      <legend class="q-title">${i + 1}. ${esc(q.question)}</legend>
+      ${q.type === 'mcq'
+        ? q.options.map((o, j) => `<label class="opt"><input type="radio" name="q${i}" value="${j}"><span>${esc(o)}</span></label>`).join('')
+        : `<textarea name="q${i}" rows="3" placeholder="መልስህን ጻፍ…"></textarea>`}
+      <div class="verdict hidden"></div>
+    </fieldset>`).join('');
+  show($('quizStart'), false); show($('quizForm')); show($('quizActions')); show($('quizAgain'), false);
+  $('gradeBtn').disabled = false;
+}
+$('quizBtn').onclick = makeQuiz;
+$('againBtn').onclick = () => { show($('quizAgain'), false); makeQuiz(); };
+
+$('gradeBtn').onclick = async () => {
+  const answers = state.quiz.map((q, i) => {
+    if (q.type === 'mcq') return document.querySelector(`input[name=q${i}]:checked`)?.value ?? '';
+    return document.querySelector(`textarea[name=q${i}]`).value;
+  });
+  $('gradeBtn').disabled = true; $('gradeBtn').textContent = 'እያረምኩ ነው…'; show($('quizError'), false);
+  try {
+    const d = await post('/api/grade', { id: state.id, answers });
+    d.results.forEach((r, i) => {
+      const box = document.querySelector(`#q${i} .verdict`);
+      const [cls, label] = r.score >= 1 ? ['ok', 'ትክክል'] : r.score > 0 ? ['part', 'ከፊል ትክክል'] : ['bad', 'ስህተት'];
+      box.innerHTML = `<b class="${cls}">${label}</b>` +
+        (r.score < 1 ? `<p><b>ትክክለኛ መልስ:</b> ${esc(r.correct_answer)}</p>` : '') +
+        `<p>${esc(r.feedback)}</p>`;
+      show(box);
+    });
+    const s = document.createElement('p'); s.className = 'score';
+    s.textContent = `ውጤት: ${d.total} ከ ${d.count}`;
+    $('quizForm').prepend(s); s.scrollIntoView({ block: 'start' });
+    show($('quizActions'), false); show($('quizAgain'));
+  } catch (e) { $('quizError').textContent = e.message; show($('quizError')); $('gradeBtn').disabled = false; }
+  $('gradeBtn').textContent = 'መልሶቼን አርም';
+};
+
+/* ---- reopen the last module after a refresh ---- */
+(async () => {
+  const id = localStorage.getItem('moduleId');
+  if (!id) return;
+  try { openModule(await api('/api/module/' + encodeURIComponent(id))); }
+  catch (_) { localStorage.removeItem('moduleId'); }
+})();
+</script>
+</body>
+</html>

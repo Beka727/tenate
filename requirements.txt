@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+anthropic
+pypdf
+python-docx
+python-multipart
+psycopg[binary]
