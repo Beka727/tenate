@@ -3,29 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>የጥናት አጋር — Advanced Study Assistant</title>
+    <title>የጥናት አጋር — Study Assistant</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #f1f5f9; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 h-full flex flex-col selection:bg-indigo-500 selection:text-white">
 
-    <!-- Top Navigation Header -->
-    <header class="bg-slate-800/80 backdrop-blur-md border-b border-slate-700/60 sticky top-0 z-50 px-6 py-3.5 flex justify-between items-center shadow-sm">
+    <!-- Header -->
+    <header class="bg-slate-800/80 backdrop-blur border-b border-slate-700/60 sticky top-0 z-50 px-6 py-3.5 flex justify-between items-center shadow-md">
         <div class="flex items-center gap-3">
             <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
                 <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
             </div>
             <div>
-                <h1 class="text-base font-bold tracking-tight text-white">የጥናት አጋር</h1>
-                <p class="text-xs text-slate-400">AI-Powered Academic Intelligence</p>
+                <h1 class="text-base font-bold text-white">የጥናት አጋር</h1>
+                <p class="text-xs text-slate-400">Smart Academic Assistant</p>
             </div>
         </div>
         <div id="module-badge" class="hidden items-center gap-2 bg-indigo-500/10 border border-indigo-500/20 px-3.5 py-1.5 rounded-full text-xs font-medium text-indigo-300 max-w-xs truncate">
@@ -34,87 +33,115 @@
         </div>
     </header>
 
-    <!-- Main Workspace Grid -->
+    <!-- Main Grid -->
     <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 overflow-hidden">
         
-        <!-- Left Column: Upload & Structured Notes (7 Cols) -->
-        <section class="lg:col-span-7 flex flex-col gap-5 overflow-hidden">
-            <!-- 1. ሞጁል መላክ (Upload Box Card) -->
-            <div id="upload-card" class="bg-slate-800/50 backdrop-blur border border-slate-700/60 p-5 rounded-2xl shadow-xl transition-all">
+        <!-- Left Panel: Upload & Action Dashboard (7 Cols) -->
+        <section class="lg:col-span-7 flex flex-col gap-5 overflow-y-auto pr-1">
+            
+            <!-- Step 1: Upload Box -->
+            <div id="upload-card" class="bg-slate-800/60 border border-slate-700/60 p-5 rounded-2xl shadow-xl">
                 <h2 class="text-sm font-semibold mb-3 text-slate-200 flex items-center gap-2">
-                    <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
-                    1. ሞጁል መላክ (የጥናት ማቴሪያል ጫን)
+                    <span class="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs font-bold">1</span>
+                    ሞጁል ወይም የጥናት ሰነድ ጫን
                 </h2>
-                <div class="border-2 border-dashed border-slate-600/60 rounded-xl p-5 text-center hover:border-indigo-500 hover:bg-slate-800/40 transition group cursor-pointer relative" id="drop-zone">
+                <div class="border-2 border-dashed border-slate-600/60 rounded-xl p-5 text-center hover:border-indigo-500 hover:bg-slate-800/40 transition cursor-pointer relative" id="drop-zone">
                     <input type="file" id="file-input" accept=".pdf,.docx,.txt,.md" class="absolute inset-0 opacity-0 cursor-pointer">
-                    <div class="flex flex-col items-center justify-center gap-1.5">
-                        <div class="w-10 h-10 rounded-full bg-indigo-500/10 text-indigo-400 flex items-center justify-center group-hover:scale-110 transition">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                        </div>
-                        <p class="text-sm font-medium text-slate-200">PDF፣ DOCX ወይም TXT ፋይል እዚህ ጣል ወይም ምረጥ</p>
-                        <p class="text-xs text-slate-400">ከፍተኛው ገደብ: 15MB</p>
+                    <div class="flex flex-col items-center justify-center gap-2">
+                        <svg class="w-8 h-8 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                        <p class="text-sm font-medium text-slate-200">PDF፣ DOCX ወይም TXT ፋይል እዚህ ይጫኑ</p>
+                        <p class="text-xs text-slate-400">ከፍተኛ መጠን: 15MB</p>
                     </div>
                 </div>
-                <div id="loading" class="hidden mt-4 flex items-center justify-center gap-2 text-indigo-400 text-xs font-medium">
-                    <svg class="animate-spin h-4 w-4 text-indigo-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                    ፋይሉ በጥልቀት እየተነበበ እና ሾርት ኖት በምዕራፍ እየተዘጋጀ ነው፣ እባክዎ ይጠብቁ...
+                <div id="loading" class="hidden mt-3 text-center text-indigo-400 text-xs font-medium animate-pulse">
+                    ፋይሉ በመነበብ ላይ ነው... እባክዎ ይጠብቁ
                 </div>
             </div>
 
-            <!-- 2. ሾርት ኖት (Structured Notes Display Card) -->
-            <div id="notes-card" class="bg-slate-800/50 backdrop-blur border border-slate-700/60 p-5 rounded-2xl shadow-xl hidden flex-1 flex flex-col overflow-hidden">
-                <div class="flex justify-between items-center mb-3 pb-3 border-b border-slate-700/60">
-                    <h2 class="text-sm font-semibold text-slate-200 flex items-center gap-2">
-                        <svg class="w-4 h-4 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                        2. ሾርት ኖት (በምዕራፍ የተከፋፈሉ ዋና ዋና ነጥቦች)
-                    </h2>
-                    <button onclick="generateQuiz()" id="quiz-btn" class="bg-violet-600/80 hover:bg-violet-600 text-white px-3.5 py-1.5 rounded-xl text-xs font-medium transition shadow-md shadow-violet-500/20 flex items-center gap-1.5">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
-                        4. መለማመጃ / ፈተና ውሰድ
+            <!-- Step 2: 4 Student Action Choices (Visible after Upload) -->
+            <div id="action-options" class="hidden bg-slate-800/60 border border-slate-700/60 p-5 rounded-2xl shadow-xl">
+                <h2 class="text-sm font-semibold mb-3 text-slate-200 flex items-center gap-2">
+                    <span class="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs font-bold">2</span>
+                    ምን እንድሰራሎት ይፈልጋሉ? (ከአራቱ አንዱን ይምረጡ)
+                </h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <button onclick="requestNotes()" class="bg-slate-900/80 hover:bg-indigo-900/40 border border-slate-700 hover:border-indigo-500/50 p-3.5 rounded-xl text-left transition flex items-start gap-3 group">
+                        <div class="p-2 rounded-lg bg-indigo-500/10 text-indigo-400 group-hover:bg-indigo-600 group-hover:text-white transition">📝</div>
+                        <div>
+                            <h3 class="text-xs font-bold text-slate-100">1. ሾርት ኖት ማዘጋጀት</h3>
+                            <p class="text-[11px] text-slate-400 mt-0.5">በምዕራፍ የተከፋፈሉ አጫጭር ነጥቦች</p>
+                        </div>
+                    </button>
+
+                    <button onclick="focusChat()" class="bg-slate-900/80 hover:bg-indigo-900/40 border border-slate-700 hover:border-indigo-500/50 p-3.5 rounded-xl text-left transition flex items-start gap-3 group">
+                        <div class="p-2 rounded-lg bg-violet-500/10 text-violet-400 group-hover:bg-violet-600 group-hover:text-white transition">💬</div>
+                        <div>
+                            <h3 class="text-xs font-bold text-slate-100">2. ጥያቄ መጠየቅ / ውይይት</h3>
+                            <p class="text-[11px] text-slate-400 mt-0.5">ስለ ሞጁሉ ግልጽ ያልሆነውን መጠየቅ</p>
+                        </div>
+                    </button>
+
+                    <button onclick="generateQuiz()" class="bg-slate-900/80 hover:bg-indigo-900/40 border border-slate-700 hover:border-indigo-500/50 p-3.5 rounded-xl text-left transition flex items-start gap-3 group">
+                        <div class="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 group-hover:bg-emerald-600 group-hover:text-white transition">🧪</div>
+                        <div>
+                            <h3 class="text-xs font-bold text-slate-100">3. የመለማመጃ ፈተና</h3>
+                            <p class="text-[11px] text-slate-400 mt-0.5">ጥያቄዎችን መስራት እና ማረም</p>
+                        </div>
+                    </button>
+
+                    <button onclick="requestSummary()" class="bg-slate-900/80 hover:bg-indigo-900/40 border border-slate-700 hover:border-indigo-500/50 p-3.5 rounded-xl text-left transition flex items-start gap-3 group">
+                        <div class="p-2 rounded-lg bg-amber-500/10 text-amber-400 group-hover:bg-amber-600 group-hover:text-white transition">📌</div>
+                        <div>
+                            <h3 class="text-xs font-bold text-slate-100">4. ዋና ዋና ነጥቦች</h3>
+                            <p class="text-[11px] text-slate-400 mt-0.5">የሞጁሉ መያዣ አጭር ማጠቃለያ</p>
+                        </div>
                     </button>
                 </div>
-                <div id="notes-content" class="prose prose-invert max-w-none text-slate-300 overflow-y-auto flex-1 text-xs md:text-sm leading-relaxed pr-2"></div>
             </div>
+
+            <!-- Content Output Display Box -->
+            <div id="output-card" class="hidden bg-slate-800/60 border border-slate-700/60 p-5 rounded-2xl shadow-xl flex-1 flex flex-col">
+                <h3 id="output-title" class="text-sm font-semibold text-slate-200 border-b border-slate-700/60 pb-2 mb-3">የጥናት ማስታወሻ</h3>
+                <div id="output-content" class="prose prose-invert max-w-none text-xs md:text-sm text-slate-300 overflow-y-auto flex-1 leading-relaxed"></div>
+            </div>
+
         </section>
 
-        <!-- Right Column: 3. ጥያቄ እና መልስ (Interactive Q&A Chat Center) (5 Cols) -->
-        <section class="lg:col-span-5 bg-slate-800/50 backdrop-blur border border-slate-700/60 p-5 rounded-2xl shadow-xl flex flex-col h-[calc(100vh-7rem)] lg:h-auto">
+        <!-- Right Panel: Interactive Q&A Chat Center (5 Cols) -->
+        <section class="lg:col-span-5 bg-slate-800/60 border border-slate-700/60 p-5 rounded-2xl shadow-xl flex flex-col h-[calc(100vh-7rem)] lg:h-auto">
             <h2 class="text-sm font-semibold mb-3 text-slate-200 pb-3 border-b border-slate-700/60 flex items-center gap-2">
-                <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
-                3. ጥያቄ እና መልስ (አስተማሪን አግኝ)
+                💬 ከሞጁሉ ጋር የመወያያ ሳጥን
             </h2>
             
-            <!-- Chat Messages Container -->
-            <div id="chat-messages" class="flex-1 overflow-y-auto space-y-3.5 pr-2 mb-4 text-xs md:text-sm">
-                <div class="bg-indigo-950/60 border border-indigo-500/20 text-indigo-200 p-3.5 rounded-2xl shadow-sm">
-                    ሰላም! ሞጁሉን ከጫኑ በኋላ ስለ ሞጁሉ ማንኛውንም ጥያቄ መጠየቅ ይችላሉ። ግልጽ ያልሆነልዎትን ክፍል በአማርኛ ወይም በእንግሊዝኛ ይጠይቁኝ!
+            <div id="chat-messages" class="flex-1 overflow-y-auto space-y-3 pr-1 mb-4 text-xs md:text-sm">
+                <div class="bg-indigo-950/60 border border-indigo-500/20 text-indigo-200 p-3.5 rounded-2xl">
+                    ሞጁሉን ከጫኑ በኋላ ከላይ ከተዘረዘሩት 4 አማራጮች የሚፈልጉትን ይምረጡ፤ ወይም በቀጥታ ጥያቄዎን እዚህ ይጻፉልኝ!
                 </div>
             </div>
 
-            <!-- Chat Input Form -->
             <form id="chat-form" class="flex gap-2 mt-auto pt-3 border-t border-slate-700/60">
-                <input type="text" id="chat-input" placeholder="ስለ ሞጁሉ ጥያቄ ይጠይቁ..." class="flex-1 bg-slate-900/80 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs md:text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition" disabled>
-                <button type="submit" id="chat-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2.5 rounded-xl text-xs font-semibold transition disabled:opacity-50 shadow-md shadow-indigo-600/30" disabled>ላክ</button>
+                <input type="text" id="chat-input" placeholder="ስለ ሞጁሉ ጥያቄ ይጠይቁ..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs md:text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500" disabled>
+                <button type="submit" id="chat-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2.5 rounded-xl text-xs font-semibold disabled:opacity-50" disabled>ላክ</button>
             </form>
         </section>
 
     </main>
 
-    <!-- Quiz Modal Container (4. መለማመጃ እና ማስተካከია) -->
+    <!-- Quiz Modal -->
     <div id="quiz-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-slate-800 border border-slate-700 w-full max-w-2xl rounded-2xl shadow-2xl p-6 max-h-[90vh] flex flex-col">
             <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-700">
-                <h3 class="text-base font-bold text-white">4. መለማመጃ ጥያቄዎች እና ማስተካከያ ግምገማ</h3>
+                <h3 class="text-base font-bold text-white">የመማሪያ መለማመጃ ጥያቄዎች</h3>
                 <button onclick="closeQuiz()" class="text-slate-400 hover:text-white text-lg font-bold">&times;</button>
             </div>
             <div id="quiz-container" class="overflow-y-auto flex-1 space-y-4 pr-2 text-sm"></div>
             <div class="mt-4 pt-3 border-t border-slate-700 flex justify-end">
-                <button onclick="submitQuiz()" id="submit-quiz-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2 rounded-xl text-xs font-semibold transition">መልስ አስረክብ እና አስገምግም</button>
+                <button onclick="submitQuiz()" id="submit-quiz-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2 rounded-xl text-xs font-semibold">መልስ አስረክብ</button>
             </div>
         </div>
     </div>
 
-    <!-- JavaScript Client Logic -->
+    <!-- Client Logic -->
     <script>
         let currentModuleId = null;
         let chatHistory = [];
@@ -122,18 +149,18 @@
 
         const fileInput = document.getElementById('file-input');
         const loadingDiv = document.getElementById('loading');
-        const uploadCard = document.getElementById('upload-card');
-        const notesCard = document.getElementById('notes-card');
-        const notesContent = document.getElementById('notes-content');
+        const actionOptions = document.getElementById('action-options');
+        const outputCard = document.getElementById('output-card');
+        const outputTitle = document.getElementById('output-title');
+        const outputContent = document.getElementById('output-content');
+        
         const moduleBadge = document.getElementById('module-badge');
         const moduleTitle = document.getElementById('module-title');
-        
         const chatMessages = document.getElementById('chat-messages');
         const chatForm = document.getElementById('chat-form');
         const chatInput = document.getElementById('chat-input');
         const chatBtn = document.getElementById('chat-btn');
 
-        // 1. ሞጁል መላክ Handler
         fileInput.addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (!file) return;
@@ -142,36 +169,73 @@
             formData.append('file', file);
 
             loadingDiv.classList.remove('hidden');
-            uploadCard.style.opacity = '0.6';
 
             try {
                 const res = await fetch('/api/upload', { method: 'POST', body: formData });
                 const data = await res.json();
                 
-                if (!res.ok) throw new Error(data.detail || 'ሰርቨሩ ላይ ስህተት ተፈጥሯል።');
+                if (!res.ok) throw new Error(data.detail || 'ስህተት ተፈጥሯል።');
 
                 currentModuleId = data.id;
                 moduleTitle.textContent = data.name;
                 moduleBadge.classList.remove('hidden');
                 moduleBadge.classList.add('flex');
                 
-                // 2. ሾርት ኖት ሪንደር ማድረግ
-                notesContent.innerHTML = marked.parse(data.notes);
-                notesCard.classList.remove('hidden');
+                // Show choice menu to student
+                actionOptions.classList.remove('hidden');
                 
                 chatInput.disabled = false;
                 chatBtn.disabled = false;
 
-                appendChatMessage('assistant', 'ሞጁሉ በተሳካ ሁኔታ ተጭኗል! ዋና ዋና ነጥቦቹን በምዕራፍ ከፍሎ አዘጋጅቻለሁ። አሁን ስለ ሞጁሉ ማንኛውንም ጥያቄ መጠየቅ ይችላሉ።');
+                appendChatMessage('assistant', 'ሞጁሉ በተሳካ ሁኔታ ተጭኗል! አሁን ከሁለተኛው ሳጥን ውስጥ የሚፈልጉትን አገልግሎት ይምረጡ።');
             } catch (err) {
                 alert('ስህተት: ' + err.message);
             } finally {
                 loadingDiv.classList.add('hidden');
-                uploadCard.style.opacity = '1';
             }
         });
 
-        // 3. ጥያቄ እና መልስ (Chat) Handler
+        function requestNotes() {
+            if (!currentModuleId) return;
+            outputTitle.textContent = '📝 በምዕራፍ የተከፋፈሉ የጥናት ማስታወሻዎች';
+            outputContent.innerHTML = '<p class="text-slate-400">ማስታወሻዎች እየተዘጋጁ ነው...</p>';
+            outputCard.classList.remove('hidden');
+
+            fetch('/api/module/' + currentModuleId)
+                .then(r => r.json())
+                .then(data => {
+                    outputContent.innerHTML = marked.parse(data.notes);
+                })
+                .catch(err => {
+                    outputContent.innerHTML = '<p class="text-red-400">ማስታወሻውን ማግኘት አልተቻለም።</p>';
+                });
+        }
+
+        function requestSummary() {
+            if (!currentModuleId) return;
+            outputTitle.textContent = '📌 የሞጁሉ ዋና ዋና ነጥቦች (Summary)';
+            outputContent.innerHTML = '<p class="text-slate-400">ማጠቃለያው እየተዘጋጀ ነው...</p>';
+            outputCard.classList.remove('hidden');
+
+            fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    id: currentModuleId,
+                    message: "እባክህ የዚህን ሞጁል ዋና ዋና 5 ነጥቦች አጠር አድርገህ በማጠቃለያ መልክ አቅርብልኝ።",
+                    history: []
+                })
+            })
+            .then(r => r.json())
+            .then(data => {
+                outputContent.innerHTML = marked.parse(data.reply);
+            });
+        }
+
+        function focusChat() {
+            chatInput.focus();
+        }
+
         chatForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const msg = chatInput.value.trim();
@@ -207,21 +271,20 @@
         function appendChatMessage(role, text) {
             const div = document.createElement('div');
             if (role === 'user') {
-                div.className = 'bg-indigo-600/30 border border-indigo-500/30 text-slate-100 p-3.5 rounded-2xl ml-8 text-xs md:text-sm';
+                div.className = 'bg-indigo-600/30 border border-indigo-500/30 text-slate-100 p-3 rounded-xl ml-6 text-xs md:text-sm';
                 div.textContent = text;
             } else {
-                div.className = 'bg-slate-800/80 border border-slate-700 text-slate-200 p-3.5 rounded-2xl mr-8 text-xs md:text-sm prose prose-invert max-w-none';
+                div.className = 'bg-slate-800 border border-slate-700 text-slate-200 p-3 rounded-xl mr-6 text-xs md:text-sm prose prose-invert max-w-none';
                 div.innerHTML = marked.parse(text);
             }
             chatMessages.appendChild(div);
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
-        // 4. መለማመጃ (Quiz Generation) Handler
         async function generateQuiz() {
             if (!currentModuleId) return;
             const quizContainer = document.getElementById('quiz-container');
-            quizContainer.innerHTML = '<p class="text-center text-slate-400 py-6">የምዕራፍ ጥያቄዎች እየተዘጋጁ ነው...</p>';
+            quizContainer.innerHTML = '<p class="text-center text-slate-400 py-6">ጥያቄዎች እየተዘጋጁ ነው...</p>';
             document.getElementById('quiz-modal').classList.remove('hidden');
 
             try {
@@ -245,7 +308,7 @@
             container.innerHTML = '';
             questions.forEach((q, idx) => {
                 const qDiv = document.createElement('div');
-                qDiv.className = 'bg-slate-900/60 border border-slate-700/60 p-4 rounded-xl';
+                qDiv.className = 'bg-slate-900 border border-slate-700 p-4 rounded-xl';
                 let html = `<p class="font-medium text-slate-200 mb-2">${idx + 1}. ${q.question}</p>`;
                 if (q.type === 'mcq' && q.options) {
                     html += `<div class="space-y-1.5 pl-2">`;
@@ -264,7 +327,6 @@
             });
         }
 
-        // 4. መለማመጃ ማስተካከያ (Grading & Feedback) Handler
         async function submitQuiz() {
             const answers = [];
             currentQuizData.forEach((q, idx) => {
@@ -287,14 +349,14 @@
                 if (!res.ok) throw new Error(data.detail || 'ማረም አልተቻለም።');
 
                 let html = `<div class="bg-indigo-950/60 border border-indigo-500/30 p-4 rounded-xl mb-4 text-center">
-                    <h4 class="text-base font-bold text-white">የፈተና ውጤትዎ: ${data.total} / ${data.count}</h4>
+                    <h4 class="text-base font-bold text-white">ውጤትዎ: ${data.total} / ${data.count}</h4>
                 </div>`;
                 
                 data.results.forEach((r, idx) => {
-                    html += `<div class="bg-slate-900/60 border border-slate-700/60 p-3.5 rounded-xl mb-2 text-xs">
+                    html += `<div class="bg-slate-900 border border-slate-700 p-3.5 rounded-xl mb-2 text-xs">
                         <p class="font-medium text-slate-200">ጥያቄ ${idx + 1} (ውጤት: ${r.score})</p>
                         <p class="text-slate-400 mt-1">ትክክለኛ መልስ: <span class="text-indigo-300">${r.correct_answer}</span></p>
-                        <p class="text-slate-300 mt-1 bg-slate-800/80 p-2 rounded">${r.feedback}</p>
+                        <p class="text-slate-300 mt-1 bg-slate-800 p-2 rounded">${r.feedback}</p>
                     </div>`;
                 });
                 document.getElementById('quiz-container').innerHTML = html;
