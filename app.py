@@ -1,4 +1,4 @@
-"""የጥናት አጋር — Study Assistant backend with DeepSeek API (Fast & Stable)."""
+"""የጥናት አጋር — Study Assistant backend with Groq API (Free, Fast & Stable)."""
 import io
 import json
 import os
@@ -14,18 +14,18 @@ from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from pypdf import PdfReader
 
-# DeepSeek Model Configuration
-MODEL = os.getenv("MODEL", "deepseek-chat")
+# Groq Model Configuration
+MODEL = os.getenv("MODEL", "llama-3.3-70b-versatile")
 MAX_CHARS = 25_000
 MAX_UPLOAD_BYTES = 15 * 1024 * 1024
 
-# Initialize DeepSeek Client (Using OpenAI compatible client)
+# Initialize Groq Client (OpenAI compatible)
 client = OpenAI(
-    api_key=os.getenv("DEEPSEEK_API_KEY"),
-    base_url="https://api.deepseek.com"
+    api_key=os.getenv("GROQ_API_KEY"),
+    base_url="https://api.groq.com/openai/v1"
 )
 
-app = FastAPI(title="የጥናት አጋር (DeepSeek)")
+app = FastAPI(title="የጥናት አጋር (Groq)")
 
 # ---------- storage ----------
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -87,7 +87,7 @@ briefly, then help with general knowledge while making clear it is outside the m
 Be accurate; never invent facts the module does not support."""
 
 
-# ---------- DeepSeek Ask Helper ----------
+# ---------- Groq Ask Helper ----------
 def ask(system: str, prompt: str, history: list[dict] = None) -> str:
     messages = [{"role": "system", "content": system}]
     
@@ -107,7 +107,7 @@ def ask(system: str, prompt: str, history: list[dict] = None) -> str:
         )
         return response.choices[0].message.content
     except Exception as e:
-        raise HTTPException(502, f"DeepSeek አገልግሎቱ አልመለሰም: {e}")
+        raise HTTPException(502, f"Groq AI አገልግሎቱ አልመለሰም: {e}")
 
 
 def teacher_system(text: str) -> str:
@@ -122,7 +122,7 @@ def parse_json(raw: str):
         start, end = raw.find("{"), raw.rfind("}")
         if start != -1 and end > start:
             return json.loads(raw[start : end + 1])
-        raise HTTPException(502, "ከ DeepSeek የመጣው መልስ ሊነበብ አልቻለም። እንደገና ሞክር።")
+        raise HTTPException(502, "ከ AI የመጣው መልስ ሊነበብ አልቻለም። እንደገና ሞክር።")
 
 
 def extract_text(name: str, data: bytes) -> str:
