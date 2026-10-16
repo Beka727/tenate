@@ -1,7 +1,7 @@
 fastapi
 uvicorn
-google-genai
+openai
+psycopg[binary]
 pypdf
 python-docx
-python-multipart
-psycopg[binary]
+pydantic
