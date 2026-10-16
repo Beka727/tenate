@@ -1,8 +1,9 @@
-"""የጥናት አጋር — Study Assistant backend with Gemini API."""
+"""የጥናት አጋር — Study Assistant backend with Gemini API (With Auto-Retry)."""
 import io
 import json
 import os
 import re
+import time
 import uuid
 from pathlib import Path
 
@@ -15,8 +16,8 @@ from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from pypdf import PdfReader
 
-# Updated model to gemini-3.8-flash
-MODEL = os.getenv("MODEL", "gemini-3.8-flash")
+# Model configuration
+MODEL = os.getenv("MODEL", "gemini-2.0-flash")
 MAX_CHARS = 120_000
 MAX_UPLOAD_BYTES = 15 * 1024 * 1024
 
@@ -84,28 +85,38 @@ briefly, then help with general knowledge while making clear it is outside the m
 Be accurate; never invent facts the module does not support."""
 
 
-# ---------- helpers ----------
+# ---------- helpers with Auto-Retry for 503 errors ----------
 def ask(system: str, prompt: str, history: list[dict] = None) -> str:
-    try:
-        full_prompt = f"{prompt}"
-        if history:
-            formatted_hist = ""
-            for h in history:
-                role = "Student" if h["role"] == "user" else "Teacher"
-                formatted_hist += f"{role}: {h['content']}\n"
-            full_prompt = f"Previous conversation:\n{formatted_hist}\nStudent: {prompt}"
+    full_prompt = f"{prompt}"
+    if history:
+        formatted_hist = ""
+        for h in history:
+            role = "Student" if h["role"] == "user" else "Teacher"
+            formatted_hist += f"{role}: {h['content']}\n"
+        full_prompt = f"Previous conversation:\n{formatted_hist}\nStudent: {prompt}"
 
-        response = client.models.generate_content(
-            model=MODEL,
-            contents=full_prompt,
-            config=types.GenerateContentConfig(
-                system_instruction=system,
-                temperature=0.3,
-            ),
-        )
-        return response.text
-    except Exception as e:
-        raise HTTPException(502, f"AI አገልግሎቱ አልመለሰም: {e}")
+    max_retries = 3
+    backoff_delay = 2
+
+    for attempt in range(max_retries):
+        try:
+            response = client.models.generate_content(
+                model=MODEL,
+                contents=full_prompt,
+                config=types.GenerateContentConfig(
+                    system_instruction=system,
+                    temperature=0.3,
+                ),
+            )
+            return response.text
+        except Exception as e:
+            error_str = str(e)
+            # If 503 or high demand error occurs, retry automatically
+            if "503" in error_str or "UNAVAILABLE" in error_str or "high demand" in error_str:
+                if attempt < max_retries - 1:
+                    time.sleep(backoff_delay * (attempt + 1))  # 2s, then 4s...
+                    continue
+            raise HTTPException(502, f"AI አገልግሎቱ አልመለሰም: {e}")
 
 
 def teacher_system(text: str) -> str:
