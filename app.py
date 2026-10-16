@@ -1,14 +1,12 @@
-"""የጥናት አጋር — Study Assistant backend (Fast & Optimized Version)."""
+"""የጥናት አጋር — Study Assistant backend with DeepSeek API (Fast & Stable)."""
 import io
 import json
 import os
 import re
-import time
 import uuid
 from pathlib import Path
 
-from google import genai
-from google.genai import types
+from openai import OpenAI
 import psycopg
 from psycopg.types.json import Jsonb
 from fastapi import FastAPI, File, HTTPException, UploadFile
@@ -16,14 +14,18 @@ from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from pypdf import PdfReader
 
-# Fast model and optimized token limit to eliminate latency
-MODEL = os.getenv("MODEL", "gemini-2.0-flash")
-MAX_CHARS = 15_000
+# DeepSeek Model Configuration
+MODEL = os.getenv("MODEL", "deepseek-chat")
+MAX_CHARS = 25_000
 MAX_UPLOAD_BYTES = 15 * 1024 * 1024
 
-# Initialize Gemini Client
-client = genai.Client()
-app = FastAPI(title="የጥናት አጋር")
+# Initialize DeepSeek Client (Using OpenAI compatible client)
+client = OpenAI(
+    api_key=os.getenv("DEEPSEEK_API_KEY"),
+    base_url="https://api.deepseek.com"
+)
+
+app = FastAPI(title="የጥናት አጋር (DeepSeek)")
 
 # ---------- storage ----------
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -85,37 +87,27 @@ briefly, then help with general knowledge while making clear it is outside the m
 Be accurate; never invent facts the module does not support."""
 
 
-# ---------- Fast Auto-Retry Helper ----------
+# ---------- DeepSeek Ask Helper ----------
 def ask(system: str, prompt: str, history: list[dict] = None) -> str:
-    full_prompt = f"{prompt}"
+    messages = [{"role": "system", "content": system}]
+    
     if history:
-        formatted_hist = ""
         for h in history:
-            role = "Student" if h["role"] == "user" else "Teacher"
-            formatted_hist += f"{role}: {h['content']}\n"
-        full_prompt = f"Previous conversation:\n{formatted_hist}\nStudent: {prompt}"
+            role = "user" if h["role"] == "user" else "assistant"
+            messages.append({"role": role, "content": h["content"]})
+            
+    messages.append({"role": "user", "content": prompt})
 
-    max_retries = 3
-    backoff_delay = 1.5  # Reduced delay for minimal waiting time
-
-    for attempt in range(max_retries):
-        try:
-            response = client.models.generate_content(
-                model=MODEL,
-                contents=full_prompt,
-                config=types.GenerateContentConfig(
-                    system_instruction=system,
-                    temperature=0.3,
-                ),
-            )
-            return response.text
-        except Exception as e:
-            error_str = str(e)
-            if "503" in error_str or "UNAVAILABLE" in error_str or "high demand" in error_str:
-                if attempt < max_retries - 1:
-                    time.sleep(backoff_delay * (attempt + 1))
-                    continue
-            raise HTTPException(502, f"AI አገልግሎቱ አልመለሰም: {e}")
+    try:
+        response = client.chat.completions.create(
+            model=MODEL,
+            messages=messages,
+            temperature=0.3,
+            stream=False
+        )
+        return response.choices[0].message.content
+    except Exception as e:
+        raise HTTPException(502, f"DeepSeek አገልግሎቱ አልመለሰም: {e}")
 
 
 def teacher_system(text: str) -> str:
@@ -130,7 +122,7 @@ def parse_json(raw: str):
         start, end = raw.find("{"), raw.rfind("}")
         if start != -1 and end > start:
             return json.loads(raw[start : end + 1])
-        raise HTTPException(502, "ከAI የመጣው መልስ ሊነበብ አልቻለም። እንደገና ሞክር።")
+        raise HTTPException(502, "ከ DeepSeek የመጣው መልስ ሊነበብ አልቻለም። እንደገና ሞክር።")
 
 
 def extract_text(name: str, data: bytes) -> str:
