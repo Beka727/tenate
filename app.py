@@ -1,11 +1,4 @@
-"""የጥናት አጋር — Study Assistant backend.
-
-Run:
-    pip install -r requirements.txt
-    export ANTHROPIC_API_KEY=sk-ant-...
-    uvicorn app:app --reload
-Then open http://127.0.0.1:8000
-"""
+"""የጥናት አጋር — Study Assistant backend with Gemini API."""
 import io
 import json
 import os
@@ -13,7 +6,8 @@ import re
 import uuid
 from pathlib import Path
 
-import anthropic
+from google import genai
+from google.genai import types
 import psycopg
 from psycopg.types.json import Jsonb
 from fastapi import FastAPI, File, HTTPException, UploadFile
@@ -21,16 +15,16 @@ from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from pypdf import PdfReader
 
-MODEL = os.getenv("MODEL", "claude-sonnet-5-5")
-MAX_CHARS = 120_000          # module text sent to the model
+# Default model: gemini-2.5-flash or gemini-1.5-flash
+MODEL = os.getenv("MODEL", "gemini-2.5-flash")
+MAX_CHARS = 120_000
 MAX_UPLOAD_BYTES = 15 * 1024 * 1024
 
-client = anthropic.Anthropic()  # reads ANTHROPIC_API_KEY from the environment
+# Initialize Gemini Client (reads GEMINI_API_KEY from environment)
+client = genai.Client()
 app = FastAPI(title="የጥናት አጋር")
 
 # ---------- storage ----------
-# On Railway, DATABASE_URL is provided by the PostgreSQL service.
-# Without it (local testing) modules are kept in memory and lost on restart.
 DATABASE_URL = os.getenv("DATABASE_URL")
 _MEM: dict[str, dict] = {}
 
@@ -82,6 +76,7 @@ def save_quiz(mid: str, quiz: list) -> None:
     with psycopg.connect(DATABASE_URL) as conn:
         conn.execute("UPDATE modules SET quiz = %s WHERE id = %s", (Jsonb(quiz), mid))
 
+
 TEACHER = """You are a patient, clear teacher helping a student study the module given below.
 Language: write in Amharic by default. If the student writes in English, answer in English.
 Base everything on the module. If something is not covered in the module, say so
@@ -90,14 +85,28 @@ Be accurate; never invent facts the module does not support."""
 
 
 # ---------- helpers ----------
-def ask(system: str, messages: list[dict], max_tokens: int = 3000) -> str:
+def ask(system: str, prompt: str, history: list[dict] = None) -> str:
     try:
-        r = client.messages.create(
-            model=MODEL, max_tokens=max_tokens, system=system, messages=messages
+        # Prepare content hierarchy or prompt
+        full_prompt = f"{prompt}"
+        if history:
+            formatted_hist = ""
+            for h in history:
+                role = "Student" if h["role"] == "user" else "Teacher"
+                formatted_hist += f"{role}: {h['content']}\n"
+            full_prompt = f"Previous conversation:\n{formatted_hist}\nStudent: {prompt}"
+
+        response = client.models.generate_content(
+            model=MODEL,
+            contents=full_prompt,
+            config=types.GenerateContentConfig(
+                system_instruction=system,
+                temperature=0.3,
+            ),
         )
-    except anthropic.APIError as e:
+        return response.text
+    except Exception as e:
         raise HTTPException(502, f"AI አገልግሎቱ አልመለሰም: {e}")
-    return "".join(b.text for b in r.content if b.type == "text")
 
 
 def teacher_system(text: str) -> str:
@@ -160,21 +169,15 @@ async def upload(file: UploadFile = File(...)):
         )
     text = text.replace("\x00", "")[:MAX_CHARS]
 
-    notes = ask(
-        teacher_system(text),
-        [
-            {
-                "role": "user",
-                "content": (
-                    "Make short study notes from this module for a student.\n"
-                    "Format (Markdown): a '## ' heading for each main topic, then short bullet "
-                    "points ('- '). Put the key terms and definitions in **bold**. Keep each "
-                    "bullet to one or two lines. End with a '## ' section of the 3–5 most "
-                    "important things to remember."
-                ),
-            }
-        ],
+    prompt = (
+        "Make short study notes from this module for a student.\n"
+        "Format (Markdown): a '## ' heading for each main topic, then short bullet "
+        "points ('- '). Put the key terms and definitions in **bold**. Keep each "
+        "bullet to one or two lines. End with a '## ' section of the 3–5 most "
+        "important things to remember."
     )
+
+    notes = ask(teacher_system(text), prompt)
     mid = uuid.uuid4().hex[:12]
     save_module(mid, file.filename or "", text, notes.replace("\x00", ""))
     return {"id": mid, "name": file.filename, "notes": notes}
@@ -200,11 +203,7 @@ def chat(body: ChatIn):
         for h in body.history[-10:]
         if h.get("role") in ("user", "assistant") and h.get("content")
     ]
-    reply = ask(
-        teacher_system(m["text"]),
-        history + [{"role": "user", "content": body.message}],
-        max_tokens=1500,
-    )
+    reply = ask(teacher_system(m["text"]), body.message, history=history)
     return {"reply": reply}
 
 
@@ -217,25 +216,17 @@ class QuizIn(BaseModel):
 def quiz(body: QuizIn):
     m = get_module(body.id)
     n = max(3, min(body.count, 10))
-    raw = ask(
-        teacher_system(m["text"]),
-        [
-            {
-                "role": "user",
-                "content": (
-                    f"Write {n} practice questions on this module, in Amharic: about 60% "
-                    "multiple choice (4 options, exactly one correct) and the rest short-answer. "
-                    "Cover different parts of the module and vary the difficulty.\n"
-                    "Return ONLY JSON, no other text, in this shape:\n"
-                    '{"questions":[{"type":"mcq","question":"...","options":["..","..","..",".."],'
-                    '"answer":0,"explanation":"..."},'
-                    '{"type":"short","question":"...","answer":"model answer","explanation":"..."}]}\n'
-                    'For "mcq", "answer" is the 0-based index of the correct option.'
-                ),
-            }
-        ],
-        max_tokens=4000,
+    prompt = (
+        f"Write {n} practice questions on this module, in Amharic: about 60% "
+        "multiple choice (4 options, exactly one correct) and the rest short-answer. "
+        "Cover different parts of the module and vary the difficulty.\n"
+        "Return ONLY JSON, no other text, in this shape:\n"
+        '{"questions":[{"type":"mcq","question":"...","options":["..","..","..",".."],'
+        '"answer":0,"explanation":"..."},'
+        '{"type":"short","question":"...","answer":"model answer","explanation":"..."}]}\n'
+        'For "mcq", "answer" is the 0-based index of the correct option.'
     )
+    raw = ask(teacher_system(m["text"]), prompt)
     qs = parse_json(raw).get("questions", [])
     clean = []
     for q in qs:
@@ -247,7 +238,6 @@ def quiz(body: QuizIn):
     if not clean:
         raise HTTPException(502, "ጥያቄዎችን ማዘጋጀት አልተቻለም። እንደገና ሞክር።")
     save_quiz(body.id, clean)
-    # Do not send answers to the browser.
     return {
         "questions": [
             {"type": q["type"], "question": q["question"], "options": q.get("options")}
@@ -258,7 +248,7 @@ def quiz(body: QuizIn):
 
 class GradeIn(BaseModel):
     id: str
-    answers: list[str]  # mcq: option index as text; short: the student's text
+    answers: list[str]
 
 
 GRADER = """You are a fair, encouraging teacher marking a student's short answers.
@@ -293,11 +283,8 @@ def grade(body: GradeIn):
             )
 
     if shorts:
-        raw = ask(
-            f"{GRADER}\n\n<module>\n{m['text']}\n</module>",
-            [{"role": "user", "content": json.dumps(shorts, ensure_ascii=False)}],
-            max_tokens=2000,
-        )
+        sys = f"{GRADER}\n\n<module>\n{m['text']}\n</module>"
+        raw = ask(sys, json.dumps(shorts, ensure_ascii=False))
         by_id = {r.get("id"): r for r in parse_json(raw).get("results", [])}
         for s in shorts:
             r = by_id.get(s["id"], {})
