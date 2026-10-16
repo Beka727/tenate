@@ -15,8 +15,8 @@ from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from pypdf import PdfReader
 
-# Updated model to gemini-1.5-flash for stable performance
-MODEL = os.getenv("MODEL", "gemini-1.5-flash")
+# Updated model to gemini-2.0-flash
+MODEL = os.getenv("MODEL", "gemini-2.0-flash")
 MAX_CHARS = 120_000
 MAX_UPLOAD_BYTES = 15 * 1024 * 1024
 
