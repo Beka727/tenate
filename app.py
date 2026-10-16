@@ -1,4 +1,4 @@
-"""የጥናት አጋር — Study Assistant backend with Groq API (Fixed Model)."""
+"""የጥናት አጋር — Study Assistant backend with Google Gemini API."""
 import io
 import json
 import os
@@ -6,7 +6,8 @@ import re
 import uuid
 from pathlib import Path
 
-from openai import OpenAI
+from google import genai
+from google.genai import types
 import psycopg
 from psycopg.types.json import Jsonb
 from fastapi import FastAPI, File, HTTPException, UploadFile
@@ -14,18 +15,13 @@ from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from pypdf import PdfReader
 
-# Groq Active Model Configuration (Stable & Supported)
-MODEL = "llama-3.3-70b-versatile"
+# Initialize Gemini Client
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+MODEL = "gemini-3.6-flash"
 MAX_CHARS = 25_000
 MAX_UPLOAD_BYTES = 15 * 1024 * 1024
 
-# Initialize Groq Client (OpenAI compatible)
-client = OpenAI(
-    api_key=os.getenv("GROQ_API_KEY"),
-    base_url="https://api.groq.com/openai/v1"
-)
-
-app = FastAPI(title="የጥናት አጋር (Groq)")
+app = FastAPI(title="የጥናት አጋር (Gemini)")
 
 # ---------- storage ----------
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -87,27 +83,28 @@ briefly, then help with general knowledge while making clear it is outside the m
 Be accurate; never invent facts the module does not support."""
 
 
-# ---------- Groq Ask Helper ----------
+# ---------- Gemini Ask Helper ----------
 def ask(system: str, prompt: str, history: list[dict] = None) -> str:
-    messages = [{"role": "system", "content": system}]
-    
+    contents = []
     if history:
         for h in history:
-            role = "user" if h["role"] == "user" else "assistant"
-            messages.append({"role": role, "content": h["content"]})
+            role = "user" if h["role"] == "user" else "model"
+            contents.append(types.Content(role=role, parts=[types.Part.from_text(text=h["content"])]))
             
-    messages.append({"role": "user", "content": prompt})
+    contents.append(types.Content(role="user", parts=[types.Part.from_text(text=prompt)]))
 
     try:
-        response = client.chat.completions.create(
+        response = client.models.generate_content(
             model=MODEL,
-            messages=messages,
-            temperature=0.3,
-            stream=False
+            contents=contents,
+            config=types.GenerateContentConfig(
+                system_instruction=system,
+                temperature=0.3,
+            ),
         )
-        return response.choices[0].message.content
+        return response.text
     except Exception as e:
-        raise HTTPException(502, f"Groq AI አገልግሎቱ አልመለሰም: {e}")
+        raise HTTPException(502, f"Gemini AI አገልግሎቱ አልመለሰም: {e}")
 
 
 def teacher_system(text: str) -> str:
