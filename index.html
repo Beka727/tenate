@@ -9,7 +9,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
-        /* Custom scrollbar for sleek look */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #f1f5f9; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
@@ -40,11 +39,11 @@
         
         <!-- Left Column: Upload & Structured Notes (7 Cols) -->
         <section class="lg:col-span-7 flex flex-col gap-5 overflow-hidden">
-            <!-- Upload Box Card -->
+            <!-- 1. ሞጁል መላክ (Upload Box Card) -->
             <div id="upload-card" class="bg-slate-800/50 backdrop-blur border border-slate-700/60 p-5 rounded-2xl shadow-xl transition-all">
                 <h2 class="text-sm font-semibold mb-3 text-slate-200 flex items-center gap-2">
                     <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
-                    አዲስ የጥናት ሞጁል ጫን
+                    1. ሞጁል መላክ (የጥናት ማቴሪያል ጫን)
                 </h2>
                 <div class="border-2 border-dashed border-slate-600/60 rounded-xl p-5 text-center hover:border-indigo-500 hover:bg-slate-800/40 transition group cursor-pointer relative" id="drop-zone">
                     <input type="file" id="file-input" accept=".pdf,.docx,.txt,.md" class="absolute inset-0 opacity-0 cursor-pointer">
@@ -58,37 +57,37 @@
                 </div>
                 <div id="loading" class="hidden mt-4 flex items-center justify-center gap-2 text-indigo-400 text-xs font-medium">
                     <svg class="animate-spin h-4 w-4 text-indigo-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                    ፋይሉ በጥልቀት እየተነበበ እና በምዕራፍ እየተዘጋጀ ነው፣ እባክዎ ይጠብቁ...
+                    ፋይሉ በጥልቀት እየተነበበ እና ሾርት ኖት በምዕራፍ እየተዘጋጀ ነው፣ እባክዎ ይጠብቁ...
                 </div>
             </div>
 
-            <!-- Notes Display Card -->
+            <!-- 2. ሾርት ኖት (Structured Notes Display Card) -->
             <div id="notes-card" class="bg-slate-800/50 backdrop-blur border border-slate-700/60 p-5 rounded-2xl shadow-xl hidden flex-1 flex flex-col overflow-hidden">
                 <div class="flex justify-between items-center mb-3 pb-3 border-b border-slate-700/60">
                     <h2 class="text-sm font-semibold text-slate-200 flex items-center gap-2">
                         <svg class="w-4 h-4 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                        ምዕራፍ-ተኮር የጥናት ማስታወሻዎች
+                        2. ሾርት ኖት (በምዕራፍ የተከፋፈሉ ዋና ዋና ነጥቦች)
                     </h2>
                     <button onclick="generateQuiz()" id="quiz-btn" class="bg-violet-600/80 hover:bg-violet-600 text-white px-3.5 py-1.5 rounded-xl text-xs font-medium transition shadow-md shadow-violet-500/20 flex items-center gap-1.5">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
-                        ፈተና/ጥያቄ አዘጋጅ
+                        4. መለማመጃ / ፈተና ውሰድ
                     </button>
                 </div>
                 <div id="notes-content" class="prose prose-invert max-w-none text-slate-300 overflow-y-auto flex-1 text-xs md:text-sm leading-relaxed pr-2"></div>
             </div>
         </section>
 
-        <!-- Right Column: Interactive Chat & Quiz Interface (5 Cols) -->
+        <!-- Right Column: 3. ጥያቄ እና መልስ (Interactive Q&A Chat Center) (5 Cols) -->
         <section class="lg:col-span-5 bg-slate-800/50 backdrop-blur border border-slate-700/60 p-5 rounded-2xl shadow-xl flex flex-col h-[calc(100vh-7rem)] lg:h-auto">
             <h2 class="text-sm font-semibold mb-3 text-slate-200 pb-3 border-b border-slate-700/60 flex items-center gap-2">
                 <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
-                አስተማሪ እና የውይይት ማዕከል
+                3. ጥያቄ እና መልስ (አስተማሪን አግኝ)
             </h2>
             
             <!-- Chat Messages Container -->
             <div id="chat-messages" class="flex-1 overflow-y-auto space-y-3.5 pr-2 mb-4 text-xs md:text-sm">
                 <div class="bg-indigo-950/60 border border-indigo-500/20 text-indigo-200 p-3.5 rounded-2xl shadow-sm">
-                    ሰላም! ሞጁሉን ከጫኑ በኋላ ስለ ትምህርቱ ግልጽ ያልሆነልዎትን ማንኛውንም ሀሳብ በአማርኛ ወይም በእንግሊዝኛ መጠየቅ ይችላሉ።
+                    ሰላም! ሞጁሉን ከጫኑ በኋላ ስለ ሞጁሉ ማንኛውንም ጥያቄ መጠየቅ ይችላሉ። ግልጽ ያልሆነልዎትን ክፍል በአማርኛ ወይም በእንግሊዝኛ ይጠይቁኝ!
                 </div>
             </div>
 
@@ -101,16 +100,16 @@
 
     </main>
 
-    <!-- Quiz Modal Container (Hidden by default) -->
+    <!-- Quiz Modal Container (4. መለማመጃ እና ማስተካከია) -->
     <div id="quiz-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-slate-800 border border-slate-700 w-full max-w-2xl rounded-2xl shadow-2xl p-6 max-h-[90vh] flex flex-col">
             <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-700">
-                <h3 class="text-base font-bold text-white">የсаルフ ፈተና (Practice Quiz)</h3>
+                <h3 class="text-base font-bold text-white">4. መለማመጃ ጥያቄዎች እና ማስተካከያ ግምገማ</h3>
                 <button onclick="closeQuiz()" class="text-slate-400 hover:text-white text-lg font-bold">&times;</button>
             </div>
             <div id="quiz-container" class="overflow-y-auto flex-1 space-y-4 pr-2 text-sm"></div>
             <div class="mt-4 pt-3 border-t border-slate-700 flex justify-end">
-                <button onclick="submitQuiz()" id="submit-quiz-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2 rounded-xl text-xs font-semibold transition">መልስ አስረክብ</button>
+                <button onclick="submitQuiz()" id="submit-quiz-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2 rounded-xl text-xs font-semibold transition">መልስ አስረክብ እና አስገምግም</button>
             </div>
         </div>
     </div>
@@ -134,6 +133,7 @@
         const chatInput = document.getElementById('chat-input');
         const chatBtn = document.getElementById('chat-btn');
 
+        // 1. ሞጁል መላክ Handler
         fileInput.addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (!file) return;
@@ -155,13 +155,14 @@
                 moduleBadge.classList.remove('hidden');
                 moduleBadge.classList.add('flex');
                 
+                // 2. ሾርት ኖት ሪንደር ማድረግ
                 notesContent.innerHTML = marked.parse(data.notes);
                 notesCard.classList.remove('hidden');
                 
                 chatInput.disabled = false;
                 chatBtn.disabled = false;
 
-                appendChatMessage('assistant', 'ሞጁሉ በተሳካ ሁኔታ ተጭኗል! ማስታወሻዎቹን በምዕራፍ ከፍሎ አዘጋጅቻለሁ። ከግራ በኩል ማንበብ እና ከዚህ በታች ጥያቄ መጠየቅ ይችላሉ።');
+                appendChatMessage('assistant', 'ሞጁሉ በተሳካ ሁኔታ ተጭኗል! ዋና ዋና ነጥቦቹን በምዕራፍ ከፍሎ አዘጋጅቻለሁ። አሁን ስለ ሞጁሉ ማንኛውንም ጥያቄ መጠየቅ ይችላሉ።');
             } catch (err) {
                 alert('ስህተት: ' + err.message);
             } finally {
@@ -170,6 +171,7 @@
             }
         });
 
+        // 3. ጥያቄ እና መልስ (Chat) Handler
         chatForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const msg = chatInput.value.trim();
@@ -215,10 +217,11 @@
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
+        // 4. መለማመጃ (Quiz Generation) Handler
         async function generateQuiz() {
             if (!currentModuleId) return;
             const quizContainer = document.getElementById('quiz-container');
-            quizContainer.innerHTML = '<p class="text-center text-slate-400 py-6">ጥያቄዎች እየተዘጋጁ ነው...</p>';
+            quizContainer.innerHTML = '<p class="text-center text-slate-400 py-6">የምዕራፍ ጥያቄዎች እየተዘጋጁ ነው...</p>';
             document.getElementById('quiz-modal').classList.remove('hidden');
 
             try {
@@ -261,6 +264,7 @@
             });
         }
 
+        // 4. መለማመጃ ማስተካከያ (Grading & Feedback) Handler
         async function submitQuiz() {
             const answers = [];
             currentQuizData.forEach((q, idx) => {
@@ -283,7 +287,7 @@
                 if (!res.ok) throw new Error(data.detail || 'ማረም አልተቻለም።');
 
                 let html = `<div class="bg-indigo-950/60 border border-indigo-500/30 p-4 rounded-xl mb-4 text-center">
-                    <h4 class="text-base font-bold text-white">ውጤትዎ: ${data.total} / ${data.count}</h4>
+                    <h4 class="text-base font-bold text-white">የፈተና ውጤትዎ: ${data.total} / ${data.count}</h4>
                 </div>`;
                 
                 data.results.forEach((r, idx) => {
