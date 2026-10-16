@@ -1,4 +1,4 @@
-"""የጥናት አጋር — Study Assistant backend with Gemini API (With Auto-Retry)."""
+"""የጥናት አጋር — Study Assistant backend with Gemini API (Full Complete Version)."""
 import io
 import json
 import os
@@ -18,10 +18,10 @@ from pypdf import PdfReader
 
 # Model configuration
 MODEL = os.getenv("MODEL", "gemini-3.8-flash")
-MAX_CHARS = 120_000
+MAX_CHARS = 100_000
 MAX_UPLOAD_BYTES = 15 * 1024 * 1024
 
-# Initialize Gemini Client (reads GEMINI_API_KEY from environment)
+# Initialize Gemini Client
 client = genai.Client()
 app = FastAPI(title="የጥናት አጋር")
 
@@ -111,10 +111,9 @@ def ask(system: str, prompt: str, history: list[dict] = None) -> str:
             return response.text
         except Exception as e:
             error_str = str(e)
-            # If 503 or high demand error occurs, retry automatically
             if "503" in error_str or "UNAVAILABLE" in error_str or "high demand" in error_str:
                 if attempt < max_retries - 1:
-                    time.sleep(backoff_delay * (attempt + 1))  # 2s, then 4s...
+                    time.sleep(backoff_delay * (attempt + 1))
                     continue
             raise HTTPException(502, f"AI አገልግሎቱ አልመለሰም: {e}")
 
@@ -180,11 +179,12 @@ async def upload(file: UploadFile = File(...)):
     text = text.replace("\x00", "")[:MAX_CHARS]
 
     prompt = (
-        "Make short study notes from this module for a student.\n"
-        "Format (Markdown): a '## ' heading for each main topic, then short bullet "
-        "points ('- '). Put the key terms and definitions in **bold**. Keep each "
-        "bullet to one or two lines. End with a '## ' section of the 3–5 most "
-        "important things to remember."
+        "Analyze this module and create structured study notes organized clearly by Chapters or Sections "
+        "(e.g., 'ምዕራፍ 1: ...', 'ምዕራፍ 2: ...').\n"
+        "Format (Markdown): Use '## ' heading for each Chapter/Main Section, followed by concise "
+        "bullet points ('- '). Put key terms and definitions in **bold**. "
+        "Keep each bullet point to one or two lines. At the very end, include a '## ' section "
+        "summarizing the 3–5 most important key takeaways from the entire module."
     )
 
     notes = ask(teacher_system(text), prompt)
@@ -227,9 +227,9 @@ def quiz(body: QuizIn):
     m = get_module(body.id)
     n = max(3, min(body.count, 10))
     prompt = (
-        f"Write {n} practice questions on this module, in Amharic: about 60% "
+        f"Write {n} practice questions covering different chapters of this module, in Amharic: about 60% "
         "multiple choice (4 options, exactly one correct) and the rest short-answer. "
-        "Cover different parts of the module and vary the difficulty.\n"
+        "Vary the difficulty across chapters.\n"
         "Return ONLY JSON, no other text, in this shape:\n"
         '{"questions":[{"type":"mcq","question":"...","options":["..","..","..",".."],'
         '"answer":0,"explanation":"..."},'
@@ -261,7 +261,7 @@ class GradeIn(BaseModel):
     answers: list[str]
 
 
-GRADER = """You are a fair, encouraging teacher marking a student's short answers.
+GRADER = """You are a fair, encouraging teacher marking a student's answers.
 For each item compare the student's answer with the reference answer. Accept correct answers
 worded differently. Score 1 (correct), 0.5 (partly correct), or 0 (wrong or blank).
 Write feedback in Amharic, 1-3 sentences: say what was right, correct any mistake, and add a
