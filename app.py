@@ -1,8 +1,9 @@
-"""የጥናት አጋር — Study Assistant backend with Google Gemini API."""
+"""የጥናት አጋር — Study Assistant backend with Gemini API (Low Demand & Chunk Optimized)."""
 import io
 import json
 import os
 import re
+import time
 import uuid
 from pathlib import Path
 
@@ -15,13 +16,15 @@ from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from pypdf import PdfReader
 
-# Initialize Gemini Client
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
-MODEL = "gemini-3.6-flash"
+# Stable working model
+MODEL = os.getenv("MODEL", "gemini-2.0-flash")
+# Reduced max chars to prevent 503 high demand server overload
 MAX_CHARS = 25_000
 MAX_UPLOAD_BYTES = 15 * 1024 * 1024
 
-app = FastAPI(title="የጥናት አጋር (Gemini)")
+# Initialize Gemini Client
+client = genai.Client()
+app = FastAPI(title="የጥናት አጋር")
 
 # ---------- storage ----------
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -83,28 +86,37 @@ briefly, then help with general knowledge while making clear it is outside the m
 Be accurate; never invent facts the module does not support."""
 
 
-# ---------- Gemini Ask Helper ----------
+# ---------- Extended Auto-Retry for 503 errors ----------
 def ask(system: str, prompt: str, history: list[dict] = None) -> str:
-    contents = []
+    full_prompt = f"{prompt}"
     if history:
+        formatted_hist = ""
         for h in history:
-            role = "user" if h["role"] == "user" else "model"
-            contents.append(types.Content(role=role, parts=[types.Part.from_text(text=h["content"])]))
-            
-    contents.append(types.Content(role="user", parts=[types.Part.from_text(text=prompt)]))
+            role = "Student" if h["role"] == "user" else "Teacher"
+            formatted_hist += f"{role}: {h['content']}\n"
+        full_prompt = f"Previous conversation:\n{formatted_hist}\nStudent: {prompt}"
 
-    try:
-        response = client.models.generate_content(
-            model=MODEL,
-            contents=contents,
-            config=types.GenerateContentConfig(
-                system_instruction=system,
-                temperature=0.3,
-            ),
-        )
-        return response.text
-    except Exception as e:
-        raise HTTPException(502, f"Gemini AI አገልግሎቱ አልመለሰም: {e}")
+    max_retries = 6
+    backoff_delay = 5  # Starts with 5s, then 10s, 15s... to let server cool down
+
+    for attempt in range(max_retries):
+        try:
+            response = client.models.generate_content(
+                model=MODEL,
+                contents=full_prompt,
+                config=types.GenerateContentConfig(
+                    system_instruction=system,
+                    temperature=0.3,
+                ),
+            )
+            return response.text
+        except Exception as e:
+            error_str = str(e)
+            if "503" in error_str or "UNAVAILABLE" in error_str or "high demand" in error_str:
+                if attempt < max_retries - 1:
+                    time.sleep(backoff_delay * (attempt + 1))
+                    continue
+            raise HTTPException(502, f"AI አገልግሎቱ አልመለሰም (እባክዎ ለጥቂት ሰከንዶች ቆይተው እንደገና ይሞክሩ): {e}")
 
 
 def teacher_system(text: str) -> str:
@@ -119,17 +131,14 @@ def parse_json(raw: str):
         start, end = raw.find("{"), raw.rfind("}")
         if start != -1 and end > start:
             return json.loads(raw[start : end + 1])
-        raise HTTPException(502, "ከ AI የመጣው መልስ ሊነበብ አልቻለም። እንደገና ሞክር።")
+        raise HTTPException(502, "ከAI የመጣው መልስ ሊነበብ አልቻለም። እንደገና ሞክር።")
 
 
 def extract_text(name: str, data: bytes) -> str:
     ext = Path(name).suffix.lower()
     if ext == ".pdf":
-        try:
-            reader = PdfReader(io.BytesIO(data))
-            return "\n".join((p.extract_text() or "") for p in reader.pages)
-        except Exception as e:
-            raise HTTPException(400, f"ይህ የ PDF ፋይል ተጎድቷል ወይም ሊነበብ አልቻለም: {e}")
+        reader = PdfReader(io.BytesIO(data))
+        return "\n".join((p.extract_text() or "") for p in reader.pages)
     if ext == ".docx":
         from docx import Document
 
