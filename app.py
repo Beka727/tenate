@@ -1,9 +1,10 @@
-"""የጥናት አጋር — Study Assistant backend with Google Gemini API."""
+"""የጥናት አጋር — Study Assistant backend with Google Gemini API & Global Caching."""
 import io
 import json
 import os
 import re
 import uuid
+import hashlib
 from pathlib import Path
 
 from google import genai
@@ -23,7 +24,7 @@ MAX_UPLOAD_BYTES = 15 * 1024 * 1024
 
 app = FastAPI(title="የጥናት አጋር (Gemini)")
 
-# ---------- storage ----------
+# ---------- storage & caching ----------
 DATABASE_URL = os.getenv("DATABASE_URL")
 _MEM: dict[str, dict] = {}
 
@@ -37,6 +38,7 @@ def init_db():
             """CREATE TABLE IF NOT EXISTS modules (
                    id TEXT PRIMARY KEY,
                    name TEXT,
+                   text_hash TEXT UNIQUE,
                    text TEXT NOT NULL,
                    notes TEXT NOT NULL,
                    quiz JSONB,
@@ -45,14 +47,33 @@ def init_db():
         )
 
 
-def save_module(mid: str, name: str, text: str, notes: str) -> None:
+def compute_hash(text: str) -> str:
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def find_module_by_hash(text_hash: str) -> dict | None:
     if not DATABASE_URL:
-        _MEM[mid] = {"id": mid, "name": name, "text": text, "notes": notes, "quiz": None}
+        for m in _MEM.values():
+            if m.get("text_hash") == text_hash:
+                return m
+        return None
+    with psycopg.connect(DATABASE_URL) as conn:
+        row = conn.execute(
+            "SELECT id, name, text, notes, quiz FROM modules WHERE text_hash = %s", (text_hash,)
+        ).fetchone()
+    if not row:
+        return None
+    return {"id": row[0], "name": row[1], "text": row[2], "notes": row[3], "quiz": row[4]}
+
+
+def save_module(mid: str, name: str, text_hash: str, text: str, notes: str) -> None:
+    if not DATABASE_URL:
+        _MEM[mid] = {"id": mid, "name": name, "text_hash": text_hash, "text": text, "notes": notes, "quiz": None}
         return
     with psycopg.connect(DATABASE_URL) as conn:
         conn.execute(
-            "INSERT INTO modules (id, name, text, notes) VALUES (%s, %s, %s, %s)",
-            (mid, name, text, notes),
+            "INSERT INTO modules (id, name, text_hash, text, notes) VALUES (%s, %s, %s, %s, %s) ON CONFLICT (text_hash) DO NOTHING",
+            (mid, name, text_hash, text, notes),
         )
 
 
@@ -70,7 +91,8 @@ def load_module(mid: str) -> dict | None:
 
 def save_quiz(mid: str, quiz: list) -> None:
     if not DATABASE_URL:
-        _MEM[mid]["quiz"] = quiz
+        if mid in _MEM:
+            _MEM[mid]["quiz"] = quiz
         return
     with psycopg.connect(DATABASE_URL) as conn:
         conn.execute("UPDATE modules SET quiz = %s WHERE id = %s", (Jsonb(quiz), mid))
@@ -169,6 +191,12 @@ async def upload(file: UploadFile = File(...)):
             400, "በፋይሉ ውስጥ ጽሑፍ አልተገኘም። ስካን የተደረገ (ምስል) PDF ከሆነ መጀመሪያ ወደ ጽሑፍ ቀይረው።"
         )
     text = text.replace("\x00", "")[:MAX_CHARS]
+    t_hash = compute_hash(text)
+
+    # Global Caching Check: ከዚህ በፊት የተጫነ ሰነድ ከሆነ AIን ሳንጠራ በቀጥታ እንመልሳለን!
+    existing = find_module_by_hash(t_hash)
+    if existing:
+        return {"id": existing["id"], "name": existing["name"], "notes": existing["notes"]}
 
     prompt = (
         "Analyze this module and create structured study notes organized clearly by Chapters or Sections "
@@ -182,7 +210,7 @@ async def upload(file: UploadFile = File(...)):
 
     notes = ask(teacher_system(text), prompt)
     mid = uuid.uuid4().hex[:12]
-    save_module(mid, file.filename or "", text, notes.replace("\x00", ""))
+    save_module(mid, file.filename or "", t_hash, text, notes.replace("\x00", ""))
     return {"id": mid, "name": file.filename, "notes": notes}
 
 
@@ -212,13 +240,24 @@ def chat(body: ChatIn):
 
 class QuizIn(BaseModel):
     id: str
-    count: int = 20
+    count: int = 25
 
 
 @app.post("/api/quiz")
 def quiz(body: QuizIn):
     m = get_module(body.id)
-    n = max(10, min(body.count, 50))
+    
+    # Shared Quiz Bank: ጥያቄዎቹ ከዚህ በፊት ተዘጋጅተው ከነበሩ በቀጥታ ከዳታቤዝ እንወስዳለን (0 API Call)
+    if m.get("quiz"):
+        q_list = m["quiz"]
+        return {
+            "questions": [
+                {"type": q["type"], "question": q["question"], "options": q.get("options")}
+                for q in q_list
+            ]
+        }
+
+    n = max(10, min(body.count, 30))
     prompt = (
         f"Write {n} comprehensive practice questions covering all chapters of this module, "
         "matching the exact language of the module: about 85% multiple choice (4 options, exactly one correct) "
