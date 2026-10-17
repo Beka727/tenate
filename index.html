@@ -83,7 +83,7 @@
                     <button onclick="generateQuiz()" class="bg-slate-900/80 hover:bg-indigo-900/40 border border-slate-700 hover:border-indigo-500/50 p-3 rounded-xl text-left transition flex items-start gap-2.5 group">
                         <div class="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 group-hover:bg-emerald-600 group-hover:text-white transition text-sm">🧪</div>
                         <div>
-                            <h3 class="text-xs font-bold text-slate-100">3. የመለማመጃ ፈተና</h3>
+                            <h3 class="text-xs font-bold text-slate-100">3. የመለማመጃ ፈተና (40 ጥያቄዎች)</h3>
                             <p class="text-[10px] text-slate-400 mt-0.5">ጥያቄዎችን መስራት እና ማረም</p>
                         </div>
                     </button>
@@ -129,7 +129,7 @@
     <div id="quiz-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3">
         <div class="bg-slate-800 border border-slate-700 w-full max-w-2xl rounded-2xl shadow-2xl p-4 sm:p-6 max-h-[85vh] flex flex-col">
             <div class="flex justify-between items-center mb-3 pb-2 border-b border-slate-700">
-                <h3 class="text-sm sm:text-base font-bold text-white">የመማሪያ መለማመጃ ጥያቄዎች</h3>
+                <h3 class="text-sm sm:text-base font-bold text-white">የመማሪያ 40 መለማመጃ ጥያቄዎች</h3>
                 <button onclick="closeQuiz()" class="text-slate-400 hover:text-white text-lg font-bold">&times;</button>
             </div>
             <div id="quiz-container" class="overflow-y-auto flex-1 space-y-3 pr-1 text-xs sm:text-sm"></div>
@@ -281,14 +281,14 @@
         async function generateQuiz() {
             if (!currentModuleId) return;
             const quizContainer = document.getElementById('quiz-container');
-            quizContainer.innerHTML = '<p class="text-center text-slate-400 py-6">ጥያቄዎች እየተዘጋጁ ነው...</p>';
+            quizContainer.innerHTML = '<p class="text-center text-slate-400 py-6">40 ጥያቄዎች እየተዘጋጁ ናቸው... እባክዎ ትንሽ ይጠብቁ</p>';
             document.getElementById('quiz-modal').classList.remove('hidden');
 
             try {
                 const res = await fetch('/api/quiz', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id: currentModuleId, count: 5 })
+                    body: JSON.stringify({ id: currentModuleId, count: 40 })
                 });
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.detail || 'ፈተና ማዘጋጀት አልተቻለም።');
