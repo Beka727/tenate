@@ -14,113 +14,111 @@
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
     </style>
 </head>
-<body class="bg-slate-900 text-slate-100 h-full flex flex-col selection:bg-indigo-500 selection:text-white">
+<body class="bg-slate-900 text-slate-100 min-h-full flex flex-col selection:bg-indigo-500 selection:text-white">
 
     <!-- Header -->
-    <header class="bg-slate-800/80 backdrop-blur border-b border-slate-700/60 sticky top-0 z-50 px-6 py-3.5 flex justify-between items-center shadow-md">
-        <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+    <header class="bg-slate-800/90 backdrop-blur border-b border-slate-700/60 sticky top-0 z-50 px-4 py-3 flex justify-between items-center shadow-md">
+        <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
             </div>
             <div>
-                <h1 class="text-base font-bold text-white">የጥናት አጋር</h1>
-                <p class="text-xs text-slate-400">Smart Academic Assistant</p>
+                <h1 class="text-sm font-bold text-white">የጥናት አጋር</h1>
+                <p class="text-[10px] text-slate-400">Smart Academic Assistant</p>
             </div>
         </div>
-        <div id="module-badge" class="hidden items-center gap-2 bg-indigo-500/10 border border-indigo-500/20 px-3.5 py-1.5 rounded-full text-xs font-medium text-indigo-300 max-w-xs truncate">
-            <span class="w-2 h-2 rounded-full bg-indigo-400 animate-pulse"></span>
+        <div id="module-badge" class="hidden items-center gap-1.5 bg-indigo-500/10 border border-indigo-500/20 px-2.5 py-1 rounded-full text-[11px] font-medium text-indigo-300 max-w-[150px] truncate">
+            <span class="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse"></span>
             <span id="module-title" class="truncate">ሞጁል ተጭኗል</span>
         </div>
     </header>
 
-    <!-- Main Grid -->
-    <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 overflow-hidden">
+    <!-- Main Container -->
+    <main class="max-w-7xl w-full mx-auto p-3 sm:p-6 flex flex-col gap-6">
         
-        <!-- Left Panel: Upload & Action Dashboard (7 Cols) -->
-        <section class="lg:col-span-7 flex flex-col gap-5 overflow-y-auto pr-1">
-            
+        <!-- Section 1: Upload & Action Dashboard -->
+        <section class="flex flex-col gap-4">
             <!-- Step 1: Upload Box -->
-            <div id="upload-card" class="bg-slate-800/60 border border-slate-700/60 p-5 rounded-2xl shadow-xl">
-                <h2 class="text-sm font-semibold mb-3 text-slate-200 flex items-center gap-2">
-                    <span class="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs font-bold">1</span>
+            <div id="upload-card" class="bg-slate-800/60 border border-slate-700/60 p-4 sm:p-5 rounded-2xl shadow-xl">
+                <h2 class="text-xs sm:text-sm font-semibold mb-2.5 text-slate-200 flex items-center gap-2">
+                    <span class="w-5 h-5 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[11px] font-bold">1</span>
                     ሞጁል ወይም የጥናት ሰነድ ጫን
                 </h2>
-                <div class="border-2 border-dashed border-slate-600/60 rounded-xl p-5 text-center hover:border-indigo-500 hover:bg-slate-800/40 transition cursor-pointer relative" id="drop-zone">
+                <div class="border-2 border-dashed border-slate-600/60 rounded-xl p-4 text-center hover:border-indigo-500 hover:bg-slate-800/40 transition cursor-pointer relative" id="drop-zone">
                     <input type="file" id="file-input" accept=".pdf,.docx,.txt,.md" class="absolute inset-0 opacity-0 cursor-pointer">
-                    <div class="flex flex-col items-center justify-center gap-2">
-                        <svg class="w-8 h-8 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
-                        <p class="text-sm font-medium text-slate-200">PDF፣ DOCX ወይም TXT ፋይል እዚህ ይጫኑ</p>
-                        <p class="text-xs text-slate-400">ከፍተኛ መጠን: 15MB</p>
+                    <div class="flex flex-col items-center justify-center gap-1.5">
+                        <svg class="w-7 h-7 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                        <p class="text-xs sm:text-sm font-medium text-slate-200">PDF፣ DOCX ወይም TXT ፋይል እዚህ ይጫኑ</p>
+                        <p class="text-[11px] text-slate-400">ከፍተኛ መጠን: 15MB</p>
                     </div>
                 </div>
-                <div id="loading" class="hidden mt-3 text-center text-indigo-400 text-xs font-medium animate-pulse">
+                <div id="loading" class="hidden mt-2 text-center text-indigo-400 text-xs font-medium animate-pulse">
                     ፋይሉ በመነበብ ላይ ነው... እባክዎ ይጠብቁ
                 </div>
             </div>
 
             <!-- Step 2: 4 Student Action Choices (Visible after Upload) -->
-            <div id="action-options" class="hidden bg-slate-800/60 border border-slate-700/60 p-5 rounded-2xl shadow-xl">
-                <h2 class="text-sm font-semibold mb-3 text-slate-200 flex items-center gap-2">
-                    <span class="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs font-bold">2</span>
+            <div id="action-options" class="hidden bg-slate-800/60 border border-slate-700/60 p-4 sm:p-5 rounded-2xl shadow-xl">
+                <h2 class="text-xs sm:text-sm font-semibold mb-2.5 text-slate-200 flex items-center gap-2">
+                    <span class="w-5 h-5 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[11px] font-bold">2</span>
                     ምን እንድሰራሎት ይፈልጋሉ? (ከአራቱ አንዱን ይምረጡ)
                 </h2>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <button onclick="requestNotes()" class="bg-slate-900/80 hover:bg-indigo-900/40 border border-slate-700 hover:border-indigo-500/50 p-3.5 rounded-xl text-left transition flex items-start gap-3 group">
-                        <div class="p-2 rounded-lg bg-indigo-500/10 text-indigo-400 group-hover:bg-indigo-600 group-hover:text-white transition">📝</div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <button onclick="requestNotes()" class="bg-slate-900/80 hover:bg-indigo-900/40 border border-slate-700 hover:border-indigo-500/50 p-3 rounded-xl text-left transition flex items-start gap-2.5 group">
+                        <div class="p-1.5 rounded-lg bg-indigo-500/10 text-indigo-400 group-hover:bg-indigo-600 group-hover:text-white transition text-sm">📝</div>
                         <div>
                             <h3 class="text-xs font-bold text-slate-100">1. ሾርት ኖት ማዘጋጀት</h3>
-                            <p class="text-[11px] text-slate-400 mt-0.5">በምዕራፍ የተከፋፈሉ አጫጭር ነጥቦች</p>
+                            <p class="text-[10px] text-slate-400 mt-0.5">በምዕራፍ የተከፋፈሉ አጫጭር ነጥቦች</p>
                         </div>
                     </button>
 
-                    <button onclick="focusChat()" class="bg-slate-900/80 hover:bg-indigo-900/40 border border-slate-700 hover:border-indigo-500/50 p-3.5 rounded-xl text-left transition flex items-start gap-3 group">
-                        <div class="p-2 rounded-lg bg-violet-500/10 text-violet-400 group-hover:bg-violet-600 group-hover:text-white transition">💬</div>
+                    <button onclick="focusChat()" class="bg-slate-900/80 hover:bg-indigo-900/40 border border-slate-700 hover:border-indigo-500/50 p-3 rounded-xl text-left transition flex items-start gap-2.5 group">
+                        <div class="p-1.5 rounded-lg bg-violet-500/10 text-violet-400 group-hover:bg-violet-600 group-hover:text-white transition text-sm">💬</div>
                         <div>
                             <h3 class="text-xs font-bold text-slate-100">2. ጥያቄ መጠየቅ / ውይይት</h3>
-                            <p class="text-[11px] text-slate-400 mt-0.5">ስለ ሞጁሉ ግልጽ ያልሆነውን መጠየቅ</p>
+                            <p class="text-[10px] text-slate-400 mt-0.5">ስለ ሞጁሉ ግልጽ ያልሆነውን መጠየቅ</p>
                         </div>
                     </button>
 
-                    <button onclick="generateQuiz()" class="bg-slate-900/80 hover:bg-indigo-900/40 border border-slate-700 hover:border-indigo-500/50 p-3.5 rounded-xl text-left transition flex items-start gap-3 group">
-                        <div class="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 group-hover:bg-emerald-600 group-hover:text-white transition">🧪</div>
+                    <button onclick="generateQuiz()" class="bg-slate-900/80 hover:bg-indigo-900/40 border border-slate-700 hover:border-indigo-500/50 p-3 rounded-xl text-left transition flex items-start gap-2.5 group">
+                        <div class="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 group-hover:bg-emerald-600 group-hover:text-white transition text-sm">🧪</div>
                         <div>
                             <h3 class="text-xs font-bold text-slate-100">3. የመለማመጃ ፈተና</h3>
-                            <p class="text-[11px] text-slate-400 mt-0.5">ጥያቄዎችን መስራት እና ማረም</p>
+                            <p class="text-[10px] text-slate-400 mt-0.5">ጥያቄዎችን መስራት እና ማረም</p>
                         </div>
                     </button>
 
-                    <button onclick="requestSummary()" class="bg-slate-900/80 hover:bg-indigo-900/40 border border-slate-700 hover:border-indigo-500/50 p-3.5 rounded-xl text-left transition flex items-start gap-3 group">
-                        <div class="p-2 rounded-lg bg-amber-500/10 text-amber-400 group-hover:bg-amber-600 group-hover:text-white transition">📌</div>
+                    <button onclick="requestSummary()" class="bg-slate-900/80 hover:bg-indigo-900/40 border border-slate-700 hover:border-indigo-500/50 p-3 rounded-xl text-left transition flex items-start gap-2.5 group">
+                        <div class="p-1.5 rounded-lg bg-amber-500/10 text-amber-400 group-hover:bg-amber-600 group-hover:text-white transition text-sm">📌</div>
                         <div>
                             <h3 class="text-xs font-bold text-slate-100">4. ዋና ዋና ነጥቦች</h3>
-                            <p class="text-[11px] text-slate-400 mt-0.5">የሞጁሉ መያዣ አጭር ማጠቃለያ</p>
+                            <p class="text-[10px] text-slate-400 mt-0.5">የሞጁሉ መያዣ አጭር ማጠቃለያ</p>
                         </div>
                     </button>
                 </div>
             </div>
 
             <!-- Content Output Display Box -->
-            <div id="output-card" class="hidden bg-slate-800/60 border border-slate-700/60 p-5 rounded-2xl shadow-xl flex-1 flex flex-col">
-                <h3 id="output-title" class="text-sm font-semibold text-slate-200 border-b border-slate-700/60 pb-2 mb-3">የጥናት ማስታወሻ</h3>
-                <div id="output-content" class="prose prose-invert max-w-none text-xs md:text-sm text-slate-300 overflow-y-auto flex-1 leading-relaxed"></div>
+            <div id="output-card" class="hidden bg-slate-800/60 border border-slate-700/60 p-4 sm:p-5 rounded-2xl shadow-xl">
+                <h3 id="output-title" class="text-xs sm:text-sm font-semibold text-slate-200 border-b border-slate-700/60 pb-2 mb-3">የጥናት ማስታወሻ</h3>
+                <div id="output-content" class="prose prose-invert max-w-none text-xs sm:text-sm text-slate-300 leading-relaxed max-h-[400px] overflow-y-auto"></div>
             </div>
-
         </section>
 
-        <!-- Right Panel: Interactive Q&A Chat Center (5 Cols) -->
-        <section class="lg:col-span-5 bg-slate-800/60 border border-slate-700/60 p-5 rounded-2xl shadow-xl flex flex-col h-[calc(100vh-7rem)] lg:h-auto">
-            <h2 class="text-sm font-semibold mb-3 text-slate-200 pb-3 border-b border-slate-700/60 flex items-center gap-2">
+        <!-- Section 2: Interactive Q&A Chat Center -->
+        <section class="bg-slate-800/60 border border-slate-700/60 p-4 sm:p-5 rounded-2xl shadow-xl flex flex-col mb-6">
+            <h2 class="text-xs sm:text-sm font-semibold mb-3 text-slate-200 pb-2.5 border-b border-slate-700/60 flex items-center gap-2">
                 💬 ከሞጁሉ ጋር የመወያያ ሳጥን
             </h2>
             
-            <div id="chat-messages" class="flex-1 overflow-y-auto space-y-3 pr-1 mb-4 text-xs md:text-sm">
-                <div class="bg-indigo-950/60 border border-indigo-500/20 text-indigo-200 p-3.5 rounded-2xl">
-                    ሞጁሉን ከጫኑ በኋላ ከላይ ከተዘረዘሩት 4 አማራጮች የሚፈልጉትን ይምረጡ፤ ወይም በቀጥታ ጥያቄዎን እዚህ ይጻፉልኝ!
+            <div id="chat-messages" class="h-[300px] sm:h-[350px] overflow-y-auto space-y-3 pr-1 mb-3 text-xs sm:text-sm">
+                <div class="bg-indigo-950/60 border border-indigo-500/20 text-indigo-200 p-3 rounded-xl">
+                    ሞጁሉን ከጫኑ በኋላ ከላይ ከተዘረዘሩት አማራጮች የሚፈልጉትን ይምረጡ፤ ወይም በቀጥታ ጥያቄዎን እዚህ ይጻፉልኝ!
                 </div>
             </div>
 
-            <form id="chat-form" class="flex gap-2 mt-auto pt-3 border-t border-slate-700/60">
-                <input type="text" id="chat-input" placeholder="ስለ ሞጁሉ ጥያቄ ይጠይቁ..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs md:text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500" disabled>
+            <form id="chat-form" class="flex gap-2 pt-2 border-t border-slate-700/60">
+                <input type="text" id="chat-input" placeholder="ስለ ሞጁሉ ጥያቄ ይጠይቁ..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-indigo-500" disabled>
                 <button type="submit" id="chat-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2.5 rounded-xl text-xs font-semibold disabled:opacity-50" disabled>ላክ</button>
             </form>
         </section>
@@ -128,15 +126,15 @@
     </main>
 
     <!-- Quiz Modal -->
-    <div id="quiz-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-800 border border-slate-700 w-full max-w-2xl rounded-2xl shadow-2xl p-6 max-h-[90vh] flex flex-col">
-            <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-700">
-                <h3 class="text-base font-bold text-white">የመማሪያ መለማመጃ ጥያቄዎች</h3>
+    <div id="quiz-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3">
+        <div class="bg-slate-800 border border-slate-700 w-full max-w-2xl rounded-2xl shadow-2xl p-4 sm:p-6 max-h-[85vh] flex flex-col">
+            <div class="flex justify-between items-center mb-3 pb-2 border-b border-slate-700">
+                <h3 class="text-sm sm:text-base font-bold text-white">የመማሪያ መለማመጃ ጥያቄዎች</h3>
                 <button onclick="closeQuiz()" class="text-slate-400 hover:text-white text-lg font-bold">&times;</button>
             </div>
-            <div id="quiz-container" class="overflow-y-auto flex-1 space-y-4 pr-2 text-sm"></div>
-            <div class="mt-4 pt-3 border-t border-slate-700 flex justify-end">
-                <button onclick="submitQuiz()" id="submit-quiz-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2 rounded-xl text-xs font-semibold">መልስ አስረክብ</button>
+            <div id="quiz-container" class="overflow-y-auto flex-1 space-y-3 pr-1 text-xs sm:text-sm"></div>
+            <div class="mt-3 pt-2 border-t border-slate-700 flex justify-end">
+                <button onclick="submitQuiz()" id="submit-quiz-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-xs font-semibold">መልስ አስረክብ</button>
             </div>
         </div>
     </div>
@@ -181,13 +179,12 @@
                 moduleBadge.classList.remove('hidden');
                 moduleBadge.classList.add('flex');
                 
-                // Show choice menu to student
                 actionOptions.classList.remove('hidden');
                 
                 chatInput.disabled = false;
                 chatBtn.disabled = false;
 
-                appendChatMessage('assistant', 'ሞጁሉ በተሳካ ሁኔታ ተጭኗል! አሁን ከሁለተኛው ሳጥን ውስጥ የሚፈልጉትን አገልግሎት ይምረጡ።');
+                appendChatMessage('assistant', 'ሞጁሉ በተሳካ ሁኔታ ተጭኗል! አሁን ከላይ ካሉት አማራጮች የሚፈልጉትን ይምረጡ።');
             } catch (err) {
                 alert('ስህተት: ' + err.message);
             } finally {
@@ -271,10 +268,10 @@
         function appendChatMessage(role, text) {
             const div = document.createElement('div');
             if (role === 'user') {
-                div.className = 'bg-indigo-600/30 border border-indigo-500/30 text-slate-100 p-3 rounded-xl ml-6 text-xs md:text-sm';
+                div.className = 'bg-indigo-600/30 border border-indigo-500/30 text-slate-100 p-2.5 rounded-xl ml-4 text-xs sm:text-sm';
                 div.textContent = text;
             } else {
-                div.className = 'bg-slate-800 border border-slate-700 text-slate-200 p-3 rounded-xl mr-6 text-xs md:text-sm prose prose-invert max-w-none';
+                div.className = 'bg-slate-800 border border-slate-700 text-slate-200 p-2.5 rounded-xl mr-4 text-xs sm:text-sm prose prose-invert max-w-none';
                 div.innerHTML = marked.parse(text);
             }
             chatMessages.appendChild(div);
@@ -308,12 +305,12 @@
             container.innerHTML = '';
             questions.forEach((q, idx) => {
                 const qDiv = document.createElement('div');
-                qDiv.className = 'bg-slate-900 border border-slate-700 p-4 rounded-xl';
+                qDiv.className = 'bg-slate-900 border border-slate-700 p-3 rounded-xl';
                 let html = `<p class="font-medium text-slate-200 mb-2">${idx + 1}. ${q.question}</p>`;
                 if (q.type === 'mcq' && q.options) {
                     html += `<div class="space-y-1.5 pl-2">`;
                     q.options.forEach((opt, oIdx) => {
-                        html += `<label class="flex items-center gap-2 text-xs md:text-sm text-slate-300 cursor-pointer hover:text-white">
+                        html += `<label class="flex items-center gap-2 text-xs sm:text-sm text-slate-300 cursor-pointer hover:text-white">
                             <input type="radio" name="q_${idx}" value="${oIdx}" class="text-indigo-600 focus:ring-indigo-500">
                             ${opt}
                         </label>`;
@@ -348,12 +345,12 @@
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.detail || 'ማረም አልተቻለም።');
 
-                let html = `<div class="bg-indigo-950/60 border border-indigo-500/30 p-4 rounded-xl mb-4 text-center">
-                    <h4 class="text-base font-bold text-white">ውጤትዎ: ${data.total} / ${data.count}</h4>
+                let html = `<div class="bg-indigo-950/60 border border-indigo-500/30 p-3 rounded-xl mb-3 text-center">
+                    <h4 class="text-sm font-bold text-white">ውጤትዎ: ${data.total} / ${data.count}</h4>
                 </div>`;
                 
                 data.results.forEach((r, idx) => {
-                    html += `<div class="bg-slate-900 border border-slate-700 p-3.5 rounded-xl mb-2 text-xs">
+                    html += `<div class="bg-slate-900 border border-slate-700 p-3 rounded-xl mb-2 text-xs">
                         <p class="font-medium text-slate-200">ጥያቄ ${idx + 1} (ውጤት: ${r.score})</p>
                         <p class="text-slate-400 mt-1">ትክክለኛ መልስ: <span class="text-indigo-300">${r.correct_answer}</span></p>
                         <p class="text-slate-300 mt-1 bg-slate-800 p-2 rounded">${r.feedback}</p>
