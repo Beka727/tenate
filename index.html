@@ -12,12 +12,18 @@
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+        
+        /* ጽሑፎቹ እንዳይደራረቡ እና ንጹህ ንባብ እንዲኖረው */
+        .prose p { margin-bottom: 0.75rem; line-height: 1.6; color: #cbd5e1; }
+        .prose ul { list-style-type: disc; padding-left: 1.25rem; margin-bottom: 0.75rem; }
+        .prose li { margin-bottom: 0.35rem; color: #cbd5e1; }
+        .prose strong { color: #ffffff; }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-full flex flex-col selection:bg-indigo-500 selection:text-white">
 
     <!-- Header -->
-    <header class="bg-slate-800/90 backdrop-blur border-b border-slate-700/60 sticky top-0 z-50 px-4 py-3 flex justify-between items-center shadow-md">
+    <header class="bg-slate-800/95 backdrop-blur border-b border-slate-700/60 sticky top-0 z-50 px-4 py-3 flex justify-between items-center shadow-md">
         <div class="flex items-center gap-2.5">
             <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
                 <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
@@ -33,8 +39,8 @@
         </div>
     </header>
 
-    <!-- Main Container -->
-    <main class="max-w-7xl w-full mx-auto p-3 sm:p-6 flex flex-col gap-6">
+    <!-- Main Container with safe top padding -->
+    <main class="max-w-7xl w-full mx-auto p-3 sm:p-6 pt-4 flex flex-col gap-6">
         
         <!-- Section 1: Upload & Action Dashboard -->
         <section class="flex flex-col gap-4">
@@ -83,7 +89,7 @@
                     <button onclick="generateQuiz()" class="bg-slate-900/80 hover:bg-indigo-900/40 border border-slate-700 hover:border-indigo-500/50 p-3 rounded-xl text-left transition flex items-start gap-2.5 group">
                         <div class="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 group-hover:bg-emerald-600 group-hover:text-white transition text-sm">🧪</div>
                         <div>
-                            <h3 class="text-xs font-bold text-slate-100">3. የመለማመጃ ፈተና (40 ጥያቄዎች)</h3>
+                            <h3 class="text-xs font-bold text-slate-100">3. የመለማመጃ ፈተና (25 ጥያቄዎች)</h3>
                             <p class="text-[10px] text-slate-400 mt-0.5">ጥያቄዎችን መስራት እና ማረም</p>
                         </div>
                     </button>
@@ -129,7 +135,7 @@
     <div id="quiz-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3">
         <div class="bg-slate-800 border border-slate-700 w-full max-w-2xl rounded-2xl shadow-2xl p-4 sm:p-6 max-h-[85vh] flex flex-col">
             <div class="flex justify-between items-center mb-3 pb-2 border-b border-slate-700">
-                <h3 class="text-sm sm:text-base font-bold text-white">የመማሪያ 40 መለማመጃ ጥያቄዎች</h3>
+                <h3 class="text-sm sm:text-base font-bold text-white">የመማሪያ መለማመጃ ጥያቄዎች</h3>
                 <button onclick="closeQuiz()" class="text-slate-400 hover:text-white text-lg font-bold">&times;</button>
             </div>
             <div id="quiz-container" class="overflow-y-auto flex-1 space-y-3 pr-1 text-xs sm:text-sm"></div>
@@ -281,14 +287,14 @@
         async function generateQuiz() {
             if (!currentModuleId) return;
             const quizContainer = document.getElementById('quiz-container');
-            quizContainer.innerHTML = '<p class="text-center text-slate-400 py-6">40 ጥያቄዎች እየተዘጋጁ ናቸው... እባክዎ ትንሽ ይጠብቁ</p>';
+            quizContainer.innerHTML = '<p class="text-center text-slate-400 py-6">ጥያቄዎች እየተዘጋጁ ናቸው... እባክዎ ትንሽ ይጠብቁ</p>';
             document.getElementById('quiz-modal').classList.remove('hidden');
 
             try {
                 const res = await fetch('/api/quiz', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id: currentModuleId, count: 40 })
+                    body: JSON.stringify({ id: currentModuleId, count: 25 })
                 });
                 const data = await res.json();
                 if (!res.ok) throw new Error(data.detail || 'ፈተና ማዘጋጀት አልተቻለም።');
