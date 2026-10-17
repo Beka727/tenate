@@ -6,3 +6,4 @@ psycopg[binary]
 pypdf
 python-docx
 pydantic
+google-genai
