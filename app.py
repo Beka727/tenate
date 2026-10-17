@@ -17,7 +17,7 @@ from pypdf import PdfReader
 
 # Initialize Gemini Client
 client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
-MODEL = "gemini-3.6-flash"
+MODEL = "gemini-2.5-flash"
 MAX_CHARS = 25_000
 MAX_UPLOAD_BYTES = 15 * 1024 * 1024
 
@@ -77,7 +77,7 @@ def save_quiz(mid: str, quiz: list) -> None:
 
 
 TEACHER = """You are a patient, clear teacher helping a student study the module given below.
-Language: write in Amharic by default. If the student writes in English, answer in English.
+CRITICAL INSTRUCTION FOR LANGUAGE: Detect the primary language of the provided <module> text (e.g., Amharic, Afaan Oromoo, English, etc.). You MUST reply, generate notes, summaries, and quiz questions strictly in the exact same language as the module. Do not default to Amharic if the module is in another language like English or Afaan Oromoo.
 Base everything on the module. If something is not covered in the module, say so
 briefly, then help with general knowledge while making clear it is outside the module.
 Be accurate; never invent facts the module does not support."""
@@ -176,7 +176,8 @@ async def upload(file: UploadFile = File(...)):
         "Format (Markdown): Use '## ' heading for each Chapter/Main Section, followed by concise "
         "bullet points ('- '). Put key terms and definitions in **bold**. "
         "Keep each bullet point to one or two lines. At the very end, include a '## ' section "
-        "summarizing the 3–5 most important key takeaways from the entire module."
+        "summarizing the 3–5 most important key takeaways from the entire module. "
+        "CRITICAL: Output must strictly match the language of the provided text."
     )
 
     notes = ask(teacher_system(text), prompt)
@@ -219,9 +220,9 @@ def quiz(body: QuizIn):
     m = get_module(body.id)
     n = max(10, min(body.count, 50))
     prompt = (
-        f"Write {n} comprehensive practice questions covering all chapters of this module, in Amharic: about 85% "
-        "multiple choice (4 options, exactly one correct) and the rest short-answer. "
-        "Vary the difficulty across chapters.\n"
+        f"Write {n} comprehensive practice questions covering all chapters of this module, "
+        "matching the exact language of the module: about 85% multiple choice (4 options, exactly one correct) "
+        "and the rest short-answer. Vary the difficulty across chapters.\n"
         "Return ONLY JSON, no other text, in this shape:\n"
         '{"questions":[{"type":"mcq","question":"...","options":["..","..","..",".."],'
         '"answer":0,"explanation":"..."},'
@@ -256,7 +257,7 @@ class GradeIn(BaseModel):
 GRADER = """You are a fair, encouraging teacher marking a student's answers.
 For each item compare the student's answer with the reference answer. Accept correct answers
 worded differently. Score 1 (correct), 0.5 (partly correct), or 0 (wrong or blank).
-Write feedback in Amharic, 1-3 sentences: say what was right, correct any mistake, and add a
+Write feedback in the exact same language as the module, 1-3 sentences: say what was right, correct any mistake, and add a
 short extra explanation that helps the student understand.
 Return ONLY JSON: {"results":[{"id":0,"score":1,"feedback":"..."}]}"""
 
