@@ -212,7 +212,7 @@ def chat(body: ChatIn):
 
 class QuizIn(BaseModel):
     id: str
-    count: int = 40
+    count: int = 20
 
 
 @app.post("/api/quiz")
